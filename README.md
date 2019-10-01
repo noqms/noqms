@@ -20,8 +20,8 @@ that are making their presence and availability known. This yields scalability a
 of failure as you would expect. A noqms microservice can also run within a container orchestration system
 and benefit from all the goodies that brings just like traditional microservices. 
 
-UDP unicast is an excellent choice for the inter microservice messages. Developers need to be wiser about dismissing
-UDP offhand. Utilized correctly, it scales far beyond TCP for obvious reasons. We must never dismiss 
+UDP unicast is an excellent choice for the application level inter microservice messages. Developers need to be wiser 
+about dismissing UDP offhand. Utilized correctly, it scales far beyond TCP for obvious reasons. We must never dismiss 
 the actuality of just how reliable UDP can be when there is, in fact, something on the other side expecting 
 the data and processing it in a timely fashion. The downside of UDP includes single packet limits of under 64K. So write your 
 microservices accordingly, thinking carefully about not turning it into a <i>macro</i>service before applying 
@@ -38,8 +38,8 @@ to the microservice that requested the data from <i>it</i>.  Programming for and
 because of an unforeseen slowdown somewhere in the system that caused cascading failures. 
 
 One benefit of not having a centralized queue - and of the framework being capable of instantiation any number of
-microservices locally and within the same process (not the intended production scenario) - is that debugging 
-the microservices is now nearly back to "not harder" than traditional models. The examples and tests demonstrate how 
+microservices locally and within the same process (not the intended production scenario) - is that the development 
+and debugging phase is now nearly back to "not harder" than traditional models. The examples and tests demonstrate how 
 to run one or more microservices from an external process. 
 
 [Examples](https://github.com/noqms/noqms-examples) and [Tests](https://github.com/noqms/noqms-tests) for this framework
