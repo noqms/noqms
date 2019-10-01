@@ -9,8 +9,8 @@ this - unfortunately most cloud providers do not support UDP multicast. This fra
 Service Finder mechanism which allows users to create their own discovery mechanism and class, replacing 
 the built in UDP multicast discovery mechanism if needed.
 
-The Java implementation here is built to be lean and mean - the central processor itself is a single thread with no 
-dependencies on blocking processes. 
+This Java implementation of the NoQMS framework shown above is built to be lean and mean - the central
+processor itself is a single thread with no dependencies on blocking processes. 
 
 You microservice code itself runs in as many configurable threads as you want.
 This allows you to adjust to better take advantage of the (virtual) environment's resources such as CPU and memory. 
