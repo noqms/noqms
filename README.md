@@ -17,7 +17,7 @@ This allows you to adjust to better take advantage of the (virtual) environment'
 Outside of the single (potentially multi-threaded) microservice instance, the framework supports running as many 
 instances of a unique microservice as you like (ideally on other virtual environments) for overall scalability and 
 to achieve better reliability in the event of failure. A noqms microservice instance can even run
-within the Kubernetes infrastructure, with all the goodies that brings, for example, just like traditional 
+within the Kubernetes infrastructure with all the goodies that brings, for example, just like traditional 
 microservices. 
 
 UDP unicast is an excellent choice for the inter microservice messages. Developers need to be wiser about dismissing
