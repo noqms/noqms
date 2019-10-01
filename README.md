@@ -25,7 +25,7 @@ UDP offhand. Utilized correctly, it scales far beyond TCP for obvious reasons. W
 the actuality of just how reliable UDP can be when there is, in fact, something on the other side expecting 
 the data and processing it in a timely fashion. The downside of UDP includes single packet limits of under 64K. So write your 
 microservices accordingly, thinking carefully about not turning it into a <i>macro</i>service before applying 
-workarounds (paging, application level packet reassembly, etc) for that 64K limit. Additionally, in the event of
+workarounds (paging, application level packet reassembly, etc) for that limit. Additionally, in the event of
 transmission failure, we know that we must program for failure anyway in order to have a robust system. Timeouts 
 are an integral part of the noqms framework, covered next.
 
