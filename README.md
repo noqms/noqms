@@ -32,7 +32,7 @@ Timeouts are first class citizens in this architecture. With each microservice t
 typicalMillis and the timeoutMillis for that microservices. The framework handles the rest - notifying a requester when
 a response has timed out, for example. Waiting for a response will not take longer than the receiving side's reported
 timeout, and the response information indicates whether a timeout occured. The microservice can handle it there at that
-level if the logic is clear, or simply pass it back to the microservice that requested the data from <i>it</t>. 
+level if the logic is clear, or simply pass it back to the microservice that requested the data from <i>it</i>. 
 Programming for and explicity handling more failure cases - which includes timeouts - makes for 
 a more robust system. The alternative can sometimes mean long weekends for IT and recovering lost or corrupt data
 because of an unforeseen slowdown somewhere in the system that caused cascading failures. 
