@@ -16,10 +16,9 @@ You microservice code itself runs in as many configurable threads as you want.
 This allows you to adjust to better take advantage of the (virtual) environment's resources such as CPU and memory. 
 Outside of the single (potentially multi-threaded) microservice instance, the framework supports running as many 
 instances of a unique microservice as you like (ideally on other virtual environments) for overall scalability and 
-to achieve better reliability in the event of failure. Nothing prevents a noqms microservice instance from running 
+to achieve better reliability in the event of failure. A noqms microservice instance can even run
 within the Kubernetes infrastructure, with all the goodies that brings, for example, just like traditional 
-microservices. There should always be more microservice instances of any unique microservice than what is 
-required for full load.  
+microservices. 
 
 UDP unicast is an excellent choice for the inter microservice messages. Developers need to be wiser about dismissing
 UDP offhand. Utilized correctly, it scales far beyond TCP for obvious reasons. We must never dismiss 
@@ -33,10 +32,9 @@ are an integral part of the noqms framework, covered next.
 Timeouts are first class citizens in this architecture. With each microservice the application developer specifies the
 typicalMillis and the timeoutMillis for that microservices. The framework handles the rest - notifying a requester when
 a response has timed out, for example. Waiting for a response will not take longer than the receiving side's reported
-timeout, and the response information indicates whether a timeout occured. The microservice can handle it there at that
-level if the logic is clear, or simply pass it back to the microservice that requested the data from <i>it</i>. 
-Programming for and explicity handling more failure cases - which includes timeouts - makes for 
-a more robust system. The alternative can sometimes mean long weekends for IT and fixing or recovering data
+timeout, and the response information indicates whether a timeout occured. The microservice can handle the timeout 
+if the way to handle it at its level is clear, or simply pass it up the chain, sending an application defined status code back 
+to the microservice that requested the data from <i>it</i>.  Programming for and explicity handling more failure cases - which includes timeouts - makes for a more robust system. The alternative can sometimes mean long weekends for IT and fixing or recovering data
 because of an unforeseen slowdown somewhere in the system that caused cascading failures. 
 
 One benefit of not having a centralized queue - and of the framework being capable of instantiation any number of
