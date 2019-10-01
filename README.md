@@ -1,5 +1,5 @@
 # noqms
-NoQMS - No Queue Microservices - Java Framework
+NoQMS - No Queue Microservices
 
 ![alt text](architecture.svg)
 
@@ -9,7 +9,7 @@ this - unfortunately most cloud providers do not support UDP multicast. This fra
 Service Finder mechanism which allows users to create their own discovery mechanism and class, replacing 
 the built in UDP multicast discovery mechanism if needed.
 
-The Java framework here is built to be lean and mean - the central processor itself is a single thread with no 
+The Java implementation here is built to be lean and mean - the central processor itself is a single thread with no 
 dependencies on blocking processes. 
 
 You microservice code itself runs in as many configurable threads as you want.
