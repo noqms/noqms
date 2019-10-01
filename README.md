@@ -4,7 +4,7 @@ NoQMS - No Queue Microservices - Java Framework
 ![alt text](architecture.svg)
 
 Microservices without a centralized queue is a perfectly viable architecture given there is 
-an efficient way for the microservices to discover each other. UDP multicast is a perfect solution for
+an efficient way for the microservices to discover each other. UDP multicast is a great solution for
 this - unfortunately most cloud providers do not support UDP multicast. This framework includes a pluggable
 Service Finder mechanism which allows users to create their own discovery mechanism and class, replacing 
 the built in UDP multicast discovery mechanism if needed.
@@ -17,7 +17,7 @@ This allows you to adjust to better take advantage of the (virtual) environment'
 Outside of the single (potentially multi-threaded) microservice instance, the framework supports running as many 
 instances of a unique microservice as you like (ideally on other virtual environments) for overall scalability and 
 to achieve better reliability in the event of failure. Nothing prevents a noqms microservice instance from running 
-within configurable Kubernetes pods, with all the goodies that brings, for example, and just like traditional 
+within the Kubernetes infrastructure, with all the goodies that brings, for example, just like traditional 
 microservices. There should always be more microservice instances of any unique microservice than what is 
 required for full load.  
 
@@ -25,7 +25,7 @@ UDP unicast is an excellent choice for the inter microservice messages. Develope
 UDP offhand. Utilized correctly, it scales far beyond TCP for obvious reasons. We must never dismiss 
 the actuality of just how reliable UDP can be when there is, in fact, something on the other side expecting 
 the data and processing it in a timely fashion. The downside of UDP includes single packet limits of under 64K. So write your 
-microservices accordingly, thinking carefully about not turning it into a macroservice before applying 
+microservices accordingly, thinking carefully about not turning it into a <i>macro</i>service before applying 
 workarounds (paging, application level packet reassembly, etc) for that 64K limit. Additionally, in the event of
 transmission failure, we know that we must program for failure anyway in order to have a robust system. Timeouts 
 are an integral part of the noqms framework, covered next.
