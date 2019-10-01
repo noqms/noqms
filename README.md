@@ -6,7 +6,7 @@ NoQMS - No Queue Microservices
 Microservices without a centralized queue is a perfectly viable architecture given there is 
 an efficient way for the microservices to discover each other. UDP multicast is a great solution for
 this - unfortunately most cloud providers do not support UDP multicast. This framework includes a pluggable
-Service Finder mechanism which allows users to create their own discovery mechanism and class, replacing 
+Service Finder which allows users to create their own discovery mechanism and class, replacing 
 the built in UDP multicast discovery mechanism if needed.
 
 This Java implementation of the NoQMS framework shown above is built to be lean and mean - the central
