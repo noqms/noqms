@@ -36,13 +36,13 @@ a response has timed out, for example. Waiting for a response will not take long
 timeout, and the response information indicates whether a timeout occured. The microservice can handle it there at that
 level if the logic is clear, or simply pass it back to the microservice that requested the data from <i>it</i>. 
 Programming for and explicity handling more failure cases - which includes timeouts - makes for 
-a more robust system. The alternative can sometimes mean long weekends for IT and recovering lost or corrupt data
+a more robust system. The alternative can sometimes mean long weekends for IT and fixing or recovering data
 because of an unforeseen slowdown somewhere in the system that caused cascading failures. 
 
 One benefit of not having a centralized queue - and of the framework being capable of instantiation any number of
 microservices locally and within the same process (not the intended production scenario) - is that debugging 
 the microservices is now nearly back to "not harder" than traditional models. The examples and tests demonstrate how 
-to instantiate one or more microservices from your own external process. 
+to run one or more microservices from an external process. 
 
 [Examples](https://github.com/noqms/noqms-examples) and [Tests](https://github.com/noqms/noqms-tests) for this framework
 reside in sibling projects.
