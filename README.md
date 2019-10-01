@@ -39,7 +39,7 @@ because of an unforeseen slowdown somewhere in the system that caused cascading 
 
 One benefit of not having a centralized queue - and of the framework being capable of instantiation any number of
 microservices locally and within the same process (not the intended production scenario) - is that the development 
-and debugging phase is now nearly back to "not harder" than traditional models. The examples and tests demonstrate how 
+and debugging phase is now nearly back to "not harder" than traditional architectures. The examples and tests demonstrate how 
 to run one or more microservices from an external process. 
 
 [Examples](https://github.com/noqms/noqms-examples) and [Tests](https://github.com/noqms/noqms-tests) for this framework
