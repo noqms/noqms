@@ -14,11 +14,11 @@ dependencies on blocking processes.
 
 You microservice code itself runs in as many configurable threads as you want.
 This allows you to adjust to better take advantage of the (virtual) environment's resources such as CPU and memory. 
-Outside of the single (potentially multi-threaded) microservice instance, the framework supports running as many 
-instances of a unique microservice as you like (ideally on other virtual environments) for overall scalability and 
-to achieve better reliability in the event of failure. A noqms microservice instance can even run
-within the Kubernetes infrastructure with all the goodies that brings, for example, just like traditional 
-microservices. 
+Outside of the single (potentially multi-threaded) microservice instance, the framework supports discovering and
+utilizing all microservice instances (running, ideally, on virtual environments of their own) 
+that are making their presence and availability known. This yields scalability and also better reliability in the event 
+of failure as you would expect. A noqms microservice can also run within a container orchestration system
+and benefit from all the goodies that brings just like traditional microservices. 
 
 UDP unicast is an excellent choice for the inter microservice messages. Developers need to be wiser about dismissing
 UDP offhand. Utilized correctly, it scales far beyond TCP for obvious reasons. We must never dismiss 
