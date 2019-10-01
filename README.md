@@ -12,7 +12,7 @@ the built in UDP multicast discovery mechanism if needed.
 This Java implementation of the NoQMS architecture shown above is lean and mean - the central
 processor itself is a single thread with no dependencies on blocking processes. 
 
-You microservice code itself runs in as many configurable threads as you want.
+Your microservice code runs in as many configurable threads as you want.
 This allows you to adjust to better take advantage of the (virtual) environment's resources such as CPU and memory. 
 Outside of the single (potentially multi-threaded) microservice instance, the framework supports discovering and
 utilizing all microservice instances (running, ideally, on virtual environments of their own) 
