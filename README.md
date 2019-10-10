@@ -9,6 +9,9 @@ this - unfortunately most cloud providers do not support UDP multicast. This fra
 Service Finder which allows users to create their own discovery mechanism and class, replacing 
 the built in UDP multicast discovery mechanism if needed.
 
+I coined the term NoQMS - No Queue Microservices - to describe microservices with no dependency on
+a centralized queue.
+
 This Java implementation of the NoQMS architecture shown above is lean and mean - the central
 processor itself is a single thread with no dependencies on blocking processes. 
 
