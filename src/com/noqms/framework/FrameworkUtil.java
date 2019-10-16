@@ -17,9 +17,8 @@
 package com.noqms.framework;
 
 import java.net.DatagramSocket;
+import java.net.Inet6Address;
 import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.util.Enumeration;
 import java.util.Properties;
 
 /**
@@ -27,6 +26,9 @@ import java.util.Properties;
  * @since 1.0.0
  */
 public class FrameworkUtil {
+    private static final boolean preferIPv6Addresses = Boolean
+            .valueOf(System.getProperty("java.net.preferIPv6Addresses"));
+
     static {
         fixTimer();
     }
@@ -46,34 +48,21 @@ public class FrameworkUtil {
 
     public static InetAddress findMyInetAddress() throws Exception {
         try {
+            // If the machine is addressable from the outside world this will obtain that address else something local.
             InetAddress address = null;
-            for (Enumeration<NetworkInterface> ifaces = NetworkInterface.getNetworkInterfaces(); ifaces
-                    .hasMoreElements();) {
-                NetworkInterface iface = ifaces.nextElement();
-                for (Enumeration<InetAddress> inetAddrs = iface.getInetAddresses(); inetAddrs.hasMoreElements();) {
-                    InetAddress inetAddr = inetAddrs.nextElement();
-                    if (!inetAddr.isLoopbackAddress()) {
-                        if (inetAddr.isSiteLocalAddress())
-                            return inetAddr;
-                        else if (address == null)
-                            address = inetAddr;
-                    }
-                }
-            }
-            if (address != null)
-                return address;
-
             try (DatagramSocket socket = new DatagramSocket()) {
-                socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
+                if (preferIPv6Addresses)
+                    socket.connect(Inet6Address.getByName("ipv6.google.com"), 10002);
+                else
+                    socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
                 address = socket.getLocalAddress();
             }
-            if (address != null)
+            if (address != null && !address.isAnyLocalAddress())
                 return address;
-
-            throw new Exception("my own ip address cannot be found");
         } catch (Exception ex) {
             throw new Exception("error obtaining my own ip address", ex);
         }
+        throw new Exception("my own ip address cannot be found");
     }
 
     public static void sleepMillis(long millis) {
