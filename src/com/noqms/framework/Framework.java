@@ -34,26 +34,31 @@ import com.noqms.ServiceFinder;
 public class Framework {
     private final AtomicBoolean exiting = new AtomicBoolean();
     private LogThread logThread;
-    private FrameworkConfig config;
+    private Config config;
     private ServiceInfoEmitter serviceInfoEmitter;
     private Processor processor;
     private ServiceFinder serviceFinder;
     private ServiceUdp serviceUdp;
-    private InetAddress myInetAddress;
     private LogListener logListener;
 
     public MicroService start(Properties props) {
+        if (props == null)
+            throw new IllegalArgumentException("start properties must be given");
+
+        for (Object key : props.keySet())
+            System.setProperty((String)key, props.getProperty((String)key));
+
         try {
-            config = FrameworkConfig.createFromProperties(props);
+            config = Config.createFromProperties(props);
             if (!config.logListenerPath.isBlank()) {
                 Class<?> objectClass = Class.forName(config.logListenerPath);
                 Constructor<?> constructor = objectClass.getConstructor();
                 logListener = (LogListener)constructor.newInstance();
             }
-        } catch (Throwable th) {
-            System.err.println("start exception: " + th.toString());
+        } catch (Exception ex) {
+            System.err.println("start exception: " + ex.toString());
             exit();
-            FrameworkUtil.sleepMillis(Integer.MAX_VALUE);
+            Util.sleepMillis(Integer.MAX_VALUE);
         }
 
         logThread = new LogThread(config.serviceName, logListener);
@@ -62,44 +67,39 @@ public class Framework {
         Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHook());
         Runtime.getRuntime().addShutdownHook(new ShutdownHook());
 
+        serviceInfoEmitter = new ServiceInfoEmitter(this);        
+        InetAddress myInetAddress = null;
+
         try {
-            myInetAddress = FrameworkUtil.findMyInetAddress();
-            processor = new Processor(this);
+            myInetAddress = Util.findMyInetAddress();
             serviceUdp = new ServiceUdp(this);
-            serviceInfoEmitter = new ServiceInfoEmitter(this);
+            serviceUdp.start();
 
             Class<?> objectClass = Class.forName(config.serviceFinderPath);
-            if (config.serviceFinderPath.equals(FrameworkConfig.DEFAULT_SERVICE_FINDER_PATH)) {
-                Constructor<?> constructor = objectClass.getConstructor(Framework.class);
-                serviceFinder = (ServiceFinder)constructor.newInstance(this);
-            } else {
-                Constructor<?> constructor = objectClass.getConstructor(String.class);
-                serviceFinder = (ServiceFinder)constructor.newInstance(config.groupName);
-            }
-
-            processor.start();
+            Constructor<?> constructor = objectClass.getConstructor(String.class, LogListener.class);
+            serviceFinder = (ServiceFinder)constructor.newInstance(config.groupName, logThread);
             serviceFinder.start();
-            serviceUdp.start();
-            serviceInfoEmitter.start();
-        } catch (Throwable th) {
-            logFatal("start exception", th);
+
+            processor = new Processor(this);
+            processor.start();
+        } catch (Exception ex) {
+            logFatal("start exception", ex);
             exit();
-            FrameworkUtil.sleepMillis(Integer.MAX_VALUE);
+            Util.sleepMillis(Integer.MAX_VALUE);
         }
 
-        // Time is given to become aware of the other microservices.
-        FrameworkUtil.sleepMillis(2 * config.emitterIntervalMillis);
-        logInfo("started: address=" + myInetAddress + " udpPort=" + serviceUdp.getReceivePort() + " group="
+        serviceInfoEmitter.start();
+
+        // Time is given to become aware of the other microservices, important if the finder is a multicast
+        // architecture.
+        Util.sleepMillis(2 * config.emitterIntervalMillis);
+        logInfo("started: address=" + myInetAddress + " port=" + serviceUdp.getReceivePort() + " group="
                 + config.groupName);
 
         return processor.getMicroService();
     }
 
-    public InetAddress getMyInetAddress() {
-        return myInetAddress;
-    }
-
-    public FrameworkConfig getConfig() {
+    public Config getConfig() {
         return config;
     }
 
@@ -143,6 +143,7 @@ public class Framework {
                 }
 
                 public void run() {
+                    Util.sleepMillis(100); // give loggers a chance
                     System.exit(-1);
                 }
             }.start();
@@ -172,7 +173,7 @@ public class Framework {
             if (processor != null)
                 processor.logRunningStats();
             logInfo("ended");
-            FrameworkUtil.sleepMillis(100);
+            Util.sleepMillis(100);
         }
     }
 }
