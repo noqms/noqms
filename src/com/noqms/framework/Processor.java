@@ -17,6 +17,7 @@
 package com.noqms.framework;
 
 import java.lang.reflect.Constructor;
+import java.net.InetAddress;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.DelayQueue;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.google.gson.Gson;
@@ -41,7 +43,7 @@ public class Processor extends Thread {
     private static final int ONE_MINUTE_MILLIS = (int)TimeUnit.MINUTES.toMillis(1);
 
     private final Framework framework;
-    private final FrameworkConfig config;
+    private final Config config;
     private final MicroService microService;
     private final ArrayDeque<MessageToMe> messagesToMe = new ArrayDeque<>();
     private final ArrayDeque<MessageFromMe> messagesFromMe = new ArrayDeque<>();
@@ -87,9 +89,10 @@ public class Processor extends Thread {
 
     // Deal with the data and return quickly.
     // Both requests to me and response to me come through here.
-    public void acceptMessageToMe(MessageHeader header, byte[] data) {
+    public void acceptMessageToMe(MessageHeader header, byte[] data, InetAddress serviceAddressFrom,
+            int servicePortFrom) {
         synchronized (messagesToMe) {
-            messagesToMe.add(new MessageToMe(header, data));
+            messagesToMe.add(new MessageToMe(header, data, serviceAddressFrom, servicePortFrom));
             messagesToMe.notify();
         }
     }
@@ -99,22 +102,23 @@ public class Processor extends Thread {
         try {
             service = framework.getServiceFinder().findService(serviceNameTo);
         } catch (Exception ex) {
+            perMinuteStats.failedRequests.incrementAndGet();
             framework.logError("the pluggable service finder threw an exception in findService()", ex);
             return new ResponseFuture(RequestStatus.ServiceNotFound);
         }
         if (service == null) {
+            perMinuteStats.failedRequests.incrementAndGet();
             framework.logWarn("sendRequestExpectResponse() serviceNameTo not found: " + serviceNameTo);
             return new ResponseFuture(RequestStatus.ServiceNotFound);
         }
         if ((System.currentTimeMillis() - service.lastHeardFromTimeMillis) > framework
                 .getConfig().serviceUnavailableMillis) {
+            perMinuteStats.failedRequests.incrementAndGet();
             framework.logWarn("sendRequestExpectResponse() serviceNameTo not responsive: " + serviceNameTo);
             return new ResponseFuture(RequestStatus.ServiceNotResponsive);
         }
         MessageHeader header = new MessageHeader();
         header.serviceNameFrom = config.serviceName;
-        header.serviceAddressFrom = framework.getMyInetAddress();
-        header.servicePortFrom = framework.getServiceUdp().getReceivePort();
         header.serviceNameTo = serviceNameTo;
         header.id = requestIdGenerator.incrementAndGet();
         ResponseFuture responseFuture = new ResponseFuture(RequestStatus.Ok);
@@ -129,22 +133,23 @@ public class Processor extends Thread {
         try {
             service = framework.getServiceFinder().findService(serviceNameTo);
         } catch (Exception ex) {
+            perMinuteStats.failedRequests.incrementAndGet();
             framework.logError("the pluggable service finder threw an exception in findService()", ex);
             return RequestStatus.ServiceNotFound;
         }
         if (service == null) {
+            perMinuteStats.failedRequests.incrementAndGet();
             framework.logWarn("sendRequest serviceNameTo not found: " + serviceNameTo);
             return RequestStatus.ServiceNotFound;
         }
         if ((System.currentTimeMillis() - service.lastHeardFromTimeMillis) > framework
                 .getConfig().serviceUnavailableMillis) {
+            perMinuteStats.failedRequests.incrementAndGet();
             framework.logWarn("sendRequest serviceNameTo not responsive: " + serviceNameTo);
             return RequestStatus.ServiceNotResponsive;
         }
         MessageHeader header = new MessageHeader();
         header.serviceNameFrom = config.serviceName;
-        header.serviceAddressFrom = framework.getMyInetAddress();
-        header.servicePortFrom = framework.getServiceUdp().getReceivePort();
         header.serviceNameTo = serviceNameTo;
         // header.id is not populated for requests not wanting a response
         synchronized (messagesFromMe) {
@@ -156,8 +161,6 @@ public class Processor extends Thread {
     public void sendResponse(Long internalRequestId, Integer code, String userMessage, String nerdDetail, byte[] data) {
         MessageHeader header = new MessageHeader();
         header.serviceNameFrom = config.serviceName;
-        header.serviceAddressFrom = framework.getMyInetAddress();
-        header.servicePortFrom = framework.getServiceUdp().getReceivePort();
         // header.serviceNameTo is populated from the original header id
         // header.id is populated from the original header id
         header.responseMeta = new MessageHeader.ResponseMeta();
@@ -206,8 +209,10 @@ public class Processor extends Thread {
                         perMinuteStats.responsesSent++;
                         header.serviceNameTo = requestToMe.header.serviceNameFrom;
                         header.id = requestToMe.header.id;
-                        framework.getServiceUdp().send(header, messageFromMe.data,
-                                requestToMe.header.serviceAddressFrom, requestToMe.header.servicePortFrom);
+                        boolean success = framework.getServiceUdp().send(header, messageFromMe.data,
+                                requestToMe.serviceAddressFrom, requestToMe.servicePortFrom);
+                        if (!success)
+                            perMinuteStats.failedResponses.incrementAndGet();
                     }
                 } else {
                     // request from me
@@ -218,8 +223,10 @@ public class Processor extends Thread {
                                 new RequestFromMeExpectingResponse(header, messageFromMe.responseFuture));
                         expiringRequestsFromMe.add(new ExpiringId(header.id, messageFromMe.serviceTo.timeoutMillis));
                     }
-                    framework.getServiceUdp().send(header, messageFromMe.data, messageFromMe.serviceTo.address,
-                            messageFromMe.serviceTo.udpPort);
+                    boolean success = framework.getServiceUdp().send(header, messageFromMe.data,
+                            messageFromMe.serviceTo.address, messageFromMe.serviceTo.port);
+                    if (!success)
+                        perMinuteStats.failedRequests.incrementAndGet();
                 }
             }
 
@@ -250,8 +257,8 @@ public class Processor extends Thread {
                     Long internalRequestId = requestIdGenerator.incrementAndGet();
                     if (header.id != null) {
                         // request to me expecting a response
-                        requestsToMeByInternalRequestId.put(internalRequestId,
-                                new RequestToMeExpectingResponse(header));
+                        requestsToMeByInternalRequestId.put(internalRequestId, new RequestToMeExpectingResponse(header,
+                                messageToMe.serviceAddressFrom, messageToMe.servicePortFrom));
                         expiringRequestsToMe.add(new ExpiringId(internalRequestId, config.timeoutMillis));
                     }
                     RequestToMeThread.Request request = new RequestToMeThread.Request(internalRequestId,
@@ -292,11 +299,11 @@ public class Processor extends Thread {
             long currentTimeMillis = System.currentTimeMillis();
             if (currentTimeMillis - lastStatsReportTimeMillis >= ONE_MINUTE_MILLIS) {
                 lastStatsReportTimeMillis = currentTimeMillis;
-                framework.logInfo("PerMinuteStats=" + perMinuteStats.getAndReset() + ", RunningStats="
-                        + new RunningStats().get());
+                framework.logInfo(
+                        "PerMinuteStats=" + perMinuteStats.getAndReset() + " RunningStats=" + new RunningStats().get());
             }
 
-            FrameworkUtil.sleepMillis(1); // very responsive but not burdensome during inactivity
+            Util.sleepMillis(1); // very responsive but not burdensome during inactivity
         }
     }
 
@@ -326,10 +333,14 @@ public class Processor extends Thread {
     private class MessageToMe {
         private final MessageHeader header;
         private final byte[] data;
+        private final InetAddress serviceAddressFrom;
+        private final int servicePortFrom;
 
-        private MessageToMe(MessageHeader header, byte[] data) {
+        private MessageToMe(MessageHeader header, byte[] data, InetAddress serviceAddressFrom, int servicePortFrom) {
             this.header = header;
             this.data = data;
+            this.serviceAddressFrom = serviceAddressFrom;
+            this.servicePortFrom = servicePortFrom;
         }
     }
 
@@ -345,9 +356,14 @@ public class Processor extends Thread {
 
     private class RequestToMeExpectingResponse {
         private final MessageHeader header;
+        private final InetAddress serviceAddressFrom;
+        private final int servicePortFrom;
 
-        private RequestToMeExpectingResponse(MessageHeader header) {
+        private RequestToMeExpectingResponse(MessageHeader header, InetAddress serviceAddressFrom,
+                int servicePortFrom) {
             this.header = header;
+            this.serviceAddressFrom = serviceAddressFrom;
+            this.servicePortFrom = servicePortFrom;
         }
     }
 
@@ -388,8 +404,8 @@ public class Processor extends Thread {
 
         private String get() {
             requestsToMeBacklog = getRequestsToMeBacklog();
-            memoryUsedMB = FrameworkUtil.getMemoryUsedMB();
-            memoryUsedPercent = FrameworkUtil.getMemoryUsedPercent();
+            memoryUsedMB = Util.getMemoryUsedMB();
+            memoryUsedPercent = Util.getMemoryUsedPercent();
             return gson.toJson(this);
         }
     }
@@ -403,6 +419,8 @@ public class Processor extends Thread {
         private int responsesDroppedByMe;
         private int responsesDroppedByOthers;
         private boolean backPressureApplied;
+        private final AtomicInteger failedRequests = new AtomicInteger();
+        private final AtomicInteger failedResponses = new AtomicInteger();
 
         private void clear() {
             requestsSent = 0;
@@ -412,6 +430,8 @@ public class Processor extends Thread {
             responsesDroppedByMe = 0;
             responsesDroppedByOthers = 0;
             backPressureApplied = false;
+            failedRequests.set(0);
+            failedResponses.set(0);
         }
 
         private String getAndReset() {
