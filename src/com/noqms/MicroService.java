@@ -35,6 +35,7 @@ public class MicroService {
     /*
      * Utilized by the framework alone to set the handler for the methods.
      */
+    @SuppressWarnings("exports")
     public void setFramework(Framework framework) {
         this.framework = framework;
     }
