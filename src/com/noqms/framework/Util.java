@@ -23,10 +23,10 @@ import java.util.Properties;
 
 /**
  * @author Stanley Barzee
- * @since 1.0.0
+ * @since 1.1.0
  */
-public class FrameworkUtil {
-    private static final boolean preferIPv6Addresses = Boolean
+public class Util {
+    public static final boolean preferIPv6Addresses = Boolean
             .valueOf(System.getProperty("java.net.preferIPv6Addresses"));
 
     static {
@@ -52,7 +52,7 @@ public class FrameworkUtil {
             InetAddress address = null;
             try (DatagramSocket socket = new DatagramSocket()) {
                 if (preferIPv6Addresses)
-                    socket.connect(Inet6Address.getByName("ipv6.google.com"), 10002);
+                    socket.connect(Inet6Address.getByName("2607:f8b0:400f:806::200e"), 10002);
                 else
                     socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
                 address = socket.getLocalAddress();
