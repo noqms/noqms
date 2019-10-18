@@ -21,19 +21,24 @@ import java.net.InetAddress;
 /**
  * Pluggable service finder. The method and means for microservices to find each other may vary from one platform to the
  * next. The provided multicast finder works very well; however multicast is not supported in most cloud environments.
- * There can/should be multiple choices of microservices for a given microservice name.
  * 
  * @author Stanley Barzee
  * @since 1.0.0
- * @see com.noqms.framework.ServiceFinderMulticast
+ * @see com.noqms.finder.multicast.ServiceFinderMulticast
  */
 public class ServiceFinder {
+    protected final String groupName;
+    protected final LogListener logger;
+
     /**
      * Provide a constructor as shown below.
      * 
      * @param groupName the microservice group
+     * @param logger    the logger
      */
-    public ServiceFinder(String groupName) {
+    public ServiceFinder(String groupName, LogListener logger) {
+        this.groupName = groupName;
+        this.logger = logger;
     }
 
     /**
@@ -49,16 +54,15 @@ public class ServiceFinder {
     }
 
     /**
-     * Send the provided information identifying my microservice to other services.
+     * Send the provided information identifying my microservice to other services or to the mechanism implementing
+     * microservice discovery.
      * 
-     * @param myGroupName     provided group name
      * @param myServiceName   provided service name
      * @param myAddress       provided ip address
-     * @param myUdpPort       provided service udp port
+     * @param myPort          provided app data port
      * @param myTimeoutMillis provided timeoutMillis
      */
-    public void sendMyServiceInfo(String myGroupName, String myServiceName, InetAddress myAddress, int myUdpPort,
-            int myTimeoutMillis) {
+    public void sendMyServiceInfo(String myServiceName, InetAddress myAddress, int myPort, int myTimeoutMillis) {
     }
 
     /**
