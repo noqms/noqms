@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.noqms.framework;
+package com.noqms.finder.multicast;
 
 import java.net.DatagramPacket;
 import java.net.InetAddress;
@@ -25,18 +25,20 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.gson.Gson;
-import com.google.gson.annotations.SerializedName;
+import com.noqms.LogListener;
 import com.noqms.ServiceFinder;
 import com.noqms.ServiceInfo;
+import com.noqms.framework.Util;
 
 /**
  * @author Stanley Barzee
- * @since 1.0.0
+ * @since 1.1.0
  */
-public class ServiceFinderMulticast extends ServiceFinder implements Runnable {
-    private static final String MULTICAST_HB_ADDRESS = "224.1.10.100";
-    private static final int MULTICAST_HB_PORT_START = 1890;
-    private static final int MESSAGE_CAPACITY = 100;
+public class ServiceFinderMulticast extends ServiceFinder {
+    private static final String MULTICAST_ADDRESS = Util.preferIPv6Addresses ? "ffee::100" : "224.1.10.100";
+    private static final int MULTICAST_PORT_START = 1890;
+    private static final int MULTICAST_PORT_SPAN = 100; // 1890 to 1989
+    private static final int UDP_BUFFER_CAPACITY_MESSAGES = 100;
 
     private final MulticastSocket multicastSocket;
     private final byte[] receiveData;
@@ -44,128 +46,112 @@ public class ServiceFinderMulticast extends ServiceFinder implements Runnable {
     private final Map<String, Map<String, ServiceInfoDynamic>> serviceNameToServices = new ConcurrentHashMap<>();
     private final InetAddress multicastAddress;
     private final int multicastPort;
-    private final Framework framework;
 
-    // Serialized names are short because this is going to be transmitted JSON style many times over the wire.
-    public static class MulticastMessage {
-        public static int MAX_BYTES = 300;
+    public ServiceFinderMulticast(String groupName, LogListener logger) throws Exception {
+        super(groupName, logger);
 
-        @SerializedName(value = "g")
-        public String groupName;
-        @SerializedName(value = "n")
-        public String serviceName;
-        @SerializedName(value = "a")
-        public InetAddress address;
-        @SerializedName(value = "p")
-        public int port;
-        @SerializedName(value = "t")
-        public int timeoutMillis;
-    }
-
-    public ServiceFinderMulticast(Framework framework) throws Exception {
-        super(framework.getConfig().groupName);
-        this.framework = framework;
-
-        multicastAddress = InetAddress.getByName(MULTICAST_HB_ADDRESS);
+        multicastAddress = InetAddress.getByName(MULTICAST_ADDRESS);
 
         // It is not critical that the port be unique among groups but it will help cut down on tossed multicast
         // messages.
-        multicastPort = MULTICAST_HB_PORT_START + (Math.abs(framework.getConfig().groupName.hashCode()) % 30000);
+        multicastPort = MULTICAST_PORT_START + (Math.abs(groupName.hashCode()) % MULTICAST_PORT_SPAN);
 
         multicastSocket = new MulticastSocket(multicastPort);
         multicastSocket.setSoTimeout(0);
-        multicastSocket.setReceiveBufferSize(MESSAGE_CAPACITY * MulticastMessage.MAX_BYTES);
-        multicastSocket.setSendBufferSize(MESSAGE_CAPACITY * MulticastMessage.MAX_BYTES);
+        multicastSocket.setReceiveBufferSize(UDP_BUFFER_CAPACITY_MESSAGES * ModelMulticast.MAX_BYTES);
+        multicastSocket.setSendBufferSize(UDP_BUFFER_CAPACITY_MESSAGES * ModelMulticast.MAX_BYTES);
         multicastSocket.setReuseAddress(true);
         multicastSocket.joinGroup(multicastAddress);
 
-        receiveData = new byte[MulticastMessage.MAX_BYTES];
+        receiveData = new byte[ModelMulticast.MAX_BYTES];
     }
 
     @Override
     public void start() {
-        Thread thread = new Thread(this);
-        thread.setDaemon(true);
-        thread.start();
+        new ReadThread().start();
     }
 
     @Override
     public void die() {
-        // This thread is a daemon, nothing to do here.
+        // The thread is a daemon, nothing to do here.
     }
 
-    @Override
-    public void run() {
-        while (true) {
-            DatagramPacket packet = new DatagramPacket(receiveData, receiveData.length);
-            try {
-                multicastSocket.receive(packet); // blocking
-            } catch (Exception ex) {
-                framework.logError("error receiving service finder multicast packet", ex);
-                continue;
-            }
+    private class ReadThread extends Thread {
+        public ReadThread() {
+            setDaemon(true);
+        }
 
-            MulticastMessage message = null;
-            try {
-                message = gson.fromJson(new String(packet.getData(), 0, packet.getLength(), StandardCharsets.UTF_8),
-                        MulticastMessage.class);
-            } catch (Exception ex) {
-                framework.logError("unable to deserialize received service finder multicast message", ex);
-                continue;
-            }
-            if (message.serviceName == null || message.serviceName.isBlank() || message.address == null
-                    || message.port <= 0 || message.timeoutMillis <= 0 || message.groupName == null) {
-                framework.logError("bad service finder multicast message received: " + gson.toJson(message), null);
-                continue;
-            }
-
-            if (!message.groupName.equals(framework.getConfig().groupName))
-                continue;
-
-            Map<String, ServiceInfoDynamic> services = serviceNameToServices.get(message.serviceName);
-            boolean addServices = false;
-            if (services == null) {
-                services = new LinkedHashMap<>();
-                addServices = true;
-            }
-            synchronized (services) {
-                String serviceKey = formServiceKey(message.address, message.port);
-                ServiceInfoDynamic service = services.get(serviceKey);
-                if (service == null) {
-                    service = new ServiceInfoDynamic(message.address, message.port);
-                    services.put(serviceKey, service);
+        @Override
+        public void run() {
+            while (true) {
+                DatagramPacket packet = new DatagramPacket(receiveData, receiveData.length);
+                try {
+                    multicastSocket.receive(packet); // blocking
+                } catch (Exception ex) {
+                    logger.logError("error receiving service finder multicast packet", ex);
+                    continue;
                 }
-                service.lastHeardFromTimeMillis = System.currentTimeMillis();
-                service.timeoutMillis = message.timeoutMillis;
+
+                ModelMulticast message = null;
+                try {
+                    message = gson.fromJson(new String(packet.getData(), 0, packet.getLength(), StandardCharsets.UTF_8),
+                            ModelMulticast.class);
+                } catch (Exception ex) {
+                    logger.logError("unable to deserialize received service finder multicast message", ex);
+                    continue;
+                }
+                if (message.serviceName == null || message.serviceName.isBlank() || message.timeoutMillis <= 0
+                        || message.groupName == null) {
+                    logger.logError("bad service finder multicast message received: " + gson.toJson(message), null);
+                    continue;
+                }
+
+                if (!message.groupName.equals(groupName))
+                    continue;
+
+                Map<String, ServiceInfoDynamic> services = serviceNameToServices.get(message.serviceName);
+                if (services == null) {
+                    services = new LinkedHashMap<>();
+                    serviceNameToServices.put(message.serviceName, services);
+                }
+                synchronized (services) {
+                    InetAddress address = message.address;
+                    int port = message.port;
+                    String serviceKey = formServiceKey(address, port);
+                    ServiceInfoDynamic service = services.get(serviceKey);
+                    if (service == null) {
+                        service = new ServiceInfoDynamic(address, port);
+                        services.put(serviceKey, service);
+                    }
+                    service.lastHeardFromTimeMillis = System.currentTimeMillis();
+                    service.timeoutMillis = message.timeoutMillis;
+                }
             }
-            if (addServices)
-                serviceNameToServices.put(message.serviceName, services);
         }
     }
 
     @Override
-    public void sendMyServiceInfo(String myGroupName, String myServiceName, InetAddress myAddress, int myUdpPort,
-            int myTimeoutMillis) {
-        MulticastMessage message = new MulticastMessage();
+    public void sendMyServiceInfo(String myServiceName, InetAddress myAddress, int port, int myTimeoutMillis) {
+        ModelMulticast message = new ModelMulticast();
+        message.groupName = groupName;
         message.serviceName = myServiceName;
         message.address = myAddress;
-        message.port = myUdpPort;
+        message.port = port;
         message.timeoutMillis = myTimeoutMillis;
-        message.groupName = myGroupName;
 
         byte[] data = gson.toJson(message).getBytes(StandardCharsets.UTF_8);
         int dataLength = data.length;
 
-        if (dataLength > MulticastMessage.MAX_BYTES) {
-            framework.logError("send service finder multicast message length exceeds maximum: " + dataLength + " > "
-                    + MulticastMessage.MAX_BYTES, null);
+        if (dataLength > ModelMulticast.MAX_BYTES) {
+            logger.logError("send service finder multicast message length exceeds maximum: " + dataLength + " > "
+                    + ModelMulticast.MAX_BYTES, null);
             return;
         }
 
         try {
             multicastSocket.send(new DatagramPacket(data, dataLength, multicastAddress, multicastPort));
         } catch (Exception ex) {
-            framework.logError("error sending service finder multicast packet", ex);
+            logger.logError("error sending service finder multicast packet", ex);
         }
     }
 
@@ -183,7 +169,7 @@ public class ServiceFinderMulticast extends ServiceFinder implements Runnable {
             }
             if (chosenService == null)
                 return null;
-            return new ServiceInfo(chosenService.address, chosenService.udpPort, chosenService.timeoutMillis,
+            return new ServiceInfo(chosenService.address, chosenService.port, chosenService.timeoutMillis,
                     chosenService.lastHeardFromTimeMillis);
         }
     }
@@ -195,14 +181,14 @@ public class ServiceFinderMulticast extends ServiceFinder implements Runnable {
     // Decrease the number of objects allocated by changing timeoutMillis and lastHeardFromTimeMillis in place.
     private class ServiceInfoDynamic {
         public final InetAddress address;
-        public final int udpPort;
+        public final int port;
 
         public int timeoutMillis;
         public long lastHeardFromTimeMillis;
 
-        public ServiceInfoDynamic(InetAddress address, int udpPort) {
+        public ServiceInfoDynamic(InetAddress address, int port) {
             this.address = address;
-            this.udpPort = udpPort;
+            this.port = port;
         }
     }
 }
