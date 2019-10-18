@@ -28,12 +28,18 @@ public class ServiceInfo {
     public final InetAddress address;
     public final int port;
     public final int timeoutMillis;
-    public final long lastHeardFromTimeMillis;
+    public final int elapsedMillis;
 
-    public ServiceInfo(InetAddress address, int port, int timeoutMillis, long lastHeardFromTimeMillis) {
+    /**
+     * @param address       remote service address
+     * @param port          remote service port
+     * @param timeoutMillis remote service timeout in millis
+     * @param elapsedMillis millis since the service reported
+     */
+    public ServiceInfo(InetAddress address, int port, int timeoutMillis, int elapsedMillis) {
         this.address = address;
         this.port = port;
         this.timeoutMillis = timeoutMillis;
-        this.lastHeardFromTimeMillis = lastHeardFromTimeMillis;
+        this.elapsedMillis = elapsedMillis;
     }
 }

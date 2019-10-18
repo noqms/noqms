@@ -111,8 +111,7 @@ public class Processor extends Thread {
             framework.logWarn("sendRequestExpectResponse() serviceNameTo not found: " + serviceNameTo);
             return new ResponseFuture(RequestStatus.ServiceNotFound);
         }
-        if ((System.currentTimeMillis() - service.lastHeardFromTimeMillis) > framework
-                .getConfig().serviceUnavailableMillis) {
+        if (service.elapsedMillis > framework.getConfig().serviceUnavailableMillis) {
             perMinuteStats.failedRequests.incrementAndGet();
             framework.logWarn("sendRequestExpectResponse() serviceNameTo not responsive: " + serviceNameTo);
             return new ResponseFuture(RequestStatus.ServiceNotResponsive);
@@ -142,8 +141,7 @@ public class Processor extends Thread {
             framework.logWarn("sendRequest serviceNameTo not found: " + serviceNameTo);
             return RequestStatus.ServiceNotFound;
         }
-        if ((System.currentTimeMillis() - service.lastHeardFromTimeMillis) > framework
-                .getConfig().serviceUnavailableMillis) {
+        if (service.elapsedMillis > framework.getConfig().serviceUnavailableMillis) {
             perMinuteStats.failedRequests.incrementAndGet();
             framework.logWarn("sendRequest serviceNameTo not responsive: " + serviceNameTo);
             return RequestStatus.ServiceNotResponsive;

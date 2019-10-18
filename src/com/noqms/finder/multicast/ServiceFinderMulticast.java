@@ -20,7 +20,6 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.nio.charset.StandardCharsets;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -43,7 +42,7 @@ public class ServiceFinderMulticast extends ServiceFinder {
     private final MulticastSocket multicastSocket;
     private final byte[] receiveData;
     private final Gson gson = new Gson();
-    private final Map<String, Map<String, ServiceInfoDynamic>> serviceNameToServices = new ConcurrentHashMap<>();
+    private final Map<String, ServiceInstance> serviceNameToService = new ConcurrentHashMap<>();
     private final InetAddress multicastAddress;
     private final int multicastPort;
 
@@ -109,23 +108,9 @@ public class ServiceFinderMulticast extends ServiceFinder {
                 if (!message.groupName.equals(groupName))
                     continue;
 
-                Map<String, ServiceInfoDynamic> services = serviceNameToServices.get(message.serviceName);
-                if (services == null) {
-                    services = new LinkedHashMap<>();
-                    serviceNameToServices.put(message.serviceName, services);
-                }
-                synchronized (services) {
-                    InetAddress address = message.address;
-                    int port = message.port;
-                    String serviceKey = formServiceKey(address, port);
-                    ServiceInfoDynamic service = services.get(serviceKey);
-                    if (service == null) {
-                        service = new ServiceInfoDynamic(address, port);
-                        services.put(serviceKey, service);
-                    }
-                    service.lastHeardFromTimeMillis = System.currentTimeMillis();
-                    service.timeoutMillis = message.timeoutMillis;
-                }
+                ServiceInstance service = new ServiceInstance(message.address, message.port, message.timeoutMillis,
+                        System.currentTimeMillis());
+                serviceNameToService.put(message.serviceName, service);
             }
         }
     }
@@ -157,38 +142,24 @@ public class ServiceFinderMulticast extends ServiceFinder {
 
     @Override
     public ServiceInfo findService(String serviceNameTo) {
-        Map<String, ServiceInfoDynamic> services = serviceNameToServices.get(serviceNameTo);
-        if (services == null || services.isEmpty())
+        ServiceInstance service = serviceNameToService.get(serviceNameTo);
+        if (service == null)
             return null;
-        synchronized (services) {
-            ServiceInfoDynamic chosenService = null;
-            for (Map.Entry<String, ServiceInfoDynamic> entry : services.entrySet()) {
-                ServiceInfoDynamic service = entry.getValue();
-                if (chosenService == null || service.lastHeardFromTimeMillis > chosenService.lastHeardFromTimeMillis)
-                    chosenService = service;
-            }
-            if (chosenService == null)
-                return null;
-            return new ServiceInfo(chosenService.address, chosenService.port, chosenService.timeoutMillis,
-                    chosenService.lastHeardFromTimeMillis);
-        }
+        return new ServiceInfo(service.address, service.port, service.timeoutMillis,
+                (int)(System.currentTimeMillis() - service.lastTimeMillis));
     }
 
-    private String formServiceKey(InetAddress address, int port) {
-        return address + "~" + port;
-    }
-
-    // Decrease the number of objects allocated by changing timeoutMillis and lastHeardFromTimeMillis in place.
-    private class ServiceInfoDynamic {
+    private class ServiceInstance {
         public final InetAddress address;
         public final int port;
+        public final int timeoutMillis;
+        public final long lastTimeMillis;
 
-        public int timeoutMillis;
-        public long lastHeardFromTimeMillis;
-
-        public ServiceInfoDynamic(InetAddress address, int port) {
+        public ServiceInstance(InetAddress address, int port, int timeoutMillis, long lastTimeMillis) {
             this.address = address;
             this.port = port;
+            this.timeoutMillis = timeoutMillis;
+            this.lastTimeMillis = lastTimeMillis;
         }
     }
 }
