@@ -19,7 +19,7 @@ package com.noqms;
 import java.util.Properties;
 
 import com.noqms.framework.Framework;
-import com.noqms.framework.FrameworkUtil;
+import com.noqms.framework.Util;
 
 /**
  * Provides main and methods for starting a microservice.
@@ -51,16 +51,18 @@ public class Runner {
     public static final String ARG_SERVICE_UNAVAILABLE_SECONDS = "serviceUnavailableSeconds";
     public static final String ARG_SERVICE_FINDER_PATH = "serviceFinderPath";
     public static final String ARG_LOG_LISTENER_PATH = "logListenerPath";
+    public static final String ARG_APP_DATA_PORT = "appDataPort";
 
     /**
      * Start the microservice at servicePath and with the specified command line parameters.
      * 
-     * @param args                      command line args with the following names
+     * @param args                      command line args with the following key/value pairs
      * 
      * @param groupName                 name of your group of interconnected microservices - must be the same between
      *                                  microservices intended to communicate with each other
      * 
-     * @param serviceName               microservice name - must be unique among interconnected microservices
+     * @param serviceName               microservice name - must be unique among interconnected microservice types -
+     *                                  instances of the same microservice have the same microservice name
      * 
      * @param servicePath               com.x.x.x full path of your microservice - can reside anywhere on your classpath
      * 
@@ -88,22 +90,25 @@ public class Runner {
      *                                  unavailable if serviceInfo has not been received for it - must be the same
      *                                  between interconnected microservices
      * 
-     * @param serviceFinderPath         default="com.noqms.framework.ServiceFinderMulticast" - the full path of a
+     * @param serviceFinderPath         default="com.noqms.finder.multicast.ServiceFinderMulticast" - the full path of a
      *                                  pluggable microservice discovery mechanism - can be anywhere on your classpath
      * 
      * @param logListenerPath           the full path of an optional listener for external log message processing - can
      *                                  be anywhere on your classpath
+     * 
+     * @param appDataPort               default=any available - UDP port this service reads for incoming application
+     *                                  data
      */
     public static void main(String[] args) {
         Properties props = null;
         try {
-            props = FrameworkUtil.argsToProps(args);
+            props = Util.argsToProps(args);
         } catch (Exception ex) {
             System.err.println("Noqms: error parsing command line arguments: " + ex.getMessage());
             return;
         }
         start(props);
-        FrameworkUtil.sleepMillis(Integer.MAX_VALUE);
+        Util.sleepMillis(Integer.MAX_VALUE);
     }
 
     /**
