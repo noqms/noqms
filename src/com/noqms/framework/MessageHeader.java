@@ -16,8 +16,6 @@
 
 package com.noqms.framework;
 
-import java.net.InetAddress;
-
 import com.google.gson.annotations.SerializedName;
 
 /**
@@ -36,9 +34,7 @@ public class MessageHeader {
         @SerializedName(value = "n") public String nerdDetail;          // stack trace, critical details, etc, if any
     }
 
-    @SerializedName(value = "n") public String serviceNameFrom;         // microservice name from  
-    @SerializedName(value = "a") public InetAddress serviceAddressFrom; // microservice address from  
-    @SerializedName(value = "p") public int servicePortFrom;            // microservice port from  
+    @SerializedName(value = "n") public String serviceNameFrom;         // microservice name from
     @SerializedName(value = "t") public String serviceNameTo;           // microservice name to  
     @SerializedName(value = "i") public Long id;                        // requestId/responseId: present if this is a request and a response is expected or if this is a response (echo the request id value) 
     @SerializedName(value = "m") public ResponseMeta responseMeta;      // present if this is a response
