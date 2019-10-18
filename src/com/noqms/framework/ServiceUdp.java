@@ -28,7 +28,7 @@ import com.google.gson.Gson;
  * @since 1.0.0
  */
 public class ServiceUdp extends Thread {
-    private static final int MESSAGE_CAPACITY = 100;
+    private static final int UDP_BUFFER_CAPACITY_MESSAGES = 100;
     private static final int HEADER_LENGTH_BYTES = 10;
 
     private final Framework framework;
@@ -40,12 +40,12 @@ public class ServiceUdp extends Thread {
     public ServiceUdp(Framework framework) throws Exception {
         this.framework = framework;
 
-        FrameworkConfig config = framework.getConfig();
+        Config config = framework.getConfig();
 
-        datagramSocket = new DatagramSocket();
+        datagramSocket = config.appDataPort == 0 ? new DatagramSocket() : new DatagramSocket(config.appDataPort);
         datagramSocket.setSoTimeout(0);
-        datagramSocket.setReceiveBufferSize(MESSAGE_CAPACITY * (MessageHeader.MAX_BYTES + config.maxMessageInBytes));
-        datagramSocket.setSendBufferSize(MESSAGE_CAPACITY * (MessageHeader.MAX_BYTES + config.maxMessageOutBytes));
+        datagramSocket.setReceiveBufferSize(UDP_BUFFER_CAPACITY_MESSAGES * (MessageHeader.MAX_BYTES + config.maxMessageInBytes));
+        datagramSocket.setSendBufferSize(UDP_BUFFER_CAPACITY_MESSAGES * (MessageHeader.MAX_BYTES + config.maxMessageOutBytes));
 
         receivePort = datagramSocket.getLocalPort();
         receiveData = new byte[MessageHeader.MAX_BYTES + config.maxMessageInBytes];
@@ -109,9 +109,8 @@ public class ServiceUdp extends Thread {
                 framework.logError("unable to deserialize received service message header", ex);
                 continue;
             }
-            if (header.serviceNameFrom == null || header.serviceNameFrom.isBlank() || header.serviceAddressFrom == null
-                    || header.servicePortFrom <= 0 || header.serviceNameTo == null || header.serviceNameTo.isBlank()
-                    || (header.id != null && header.id <= 0)) {
+            if (header.serviceNameFrom == null || header.serviceNameFrom.isBlank() || header.serviceNameTo == null
+                    || header.serviceNameTo.isBlank() || (header.id != null && header.id <= 0)) {
                 framework.logError("bad service message received: " + gson.toJson(header), null);
                 continue;
             }
@@ -126,16 +125,19 @@ public class ServiceUdp extends Thread {
             if (serviceDataLength > 0)
                 System.arraycopy(packetData, HEADER_LENGTH_BYTES + headerLength, serviceData, 0, serviceDataLength);
 
-            framework.getProcessor().acceptMessageToMe(header, serviceData);
+            framework.getProcessor().acceptMessageToMe(header, serviceData, packet.getAddress(), packet.getPort());
         }
     }
 
-    public void send(MessageHeader header, byte[] data, InetAddress addressTo, int portTo) {
+    /**
+     * @return true on success
+     */
+    public boolean send(MessageHeader header, byte[] data, InetAddress addressTo, int portTo) {
         int dataLength = data == null ? 0 : data.length;
         if (dataLength > framework.getConfig().maxMessageOutBytes) {
             framework.logError("send service message length exceeds maximum: " + dataLength + " > "
                     + framework.getConfig().maxMessageOutBytes, null);
-            return;
+            return false;
         }
 
         byte[] headerBytes = gson.toJson(header).getBytes(StandardCharsets.UTF_8);
@@ -143,7 +145,7 @@ public class ServiceUdp extends Thread {
         if (headerLength > MessageHeader.MAX_BYTES) {
             framework.logError("send service message header length exceeds maximum: " + headerLength + " > "
                     + MessageHeader.MAX_BYTES, null);
-            return;
+            return false;
         }
 
         byte[] udpMessage = new byte[HEADER_LENGTH_BYTES + headerLength + dataLength];
@@ -157,6 +159,9 @@ public class ServiceUdp extends Thread {
             datagramSocket.send(new DatagramPacket(udpMessage, udpMessage.length, addressTo, portTo));
         } catch (Exception ex) {
             framework.logError("error sending service packet", ex);
+            return false;
         }
+        
+        return true;
     }
 }
