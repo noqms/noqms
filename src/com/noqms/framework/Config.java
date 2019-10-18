@@ -22,11 +22,10 @@ import com.noqms.Runner;
 
 /**
  * @author Stanley Barzee
- * @since 1.0.0
+ * @since 1.1.0
  */
-public class FrameworkConfig {
-    public static final String DEFAULT_SERVICE_FINDER_PATH = "com.noqms.framework.ServiceFinderMulticast";
-    
+public class Config {
+    private static final String DEFAULT_SERVICE_FINDER_PATH = "com.noqms.finder.multicast.ServiceFinderMulticast";
     private static final int MAX_STRING_LENGTH = 100;
     private static final int DEFAULT_EMITTER_INTERVAL_SECONDS = 2;
     private static final int DEFAULT_SERVICE_UNAVAILABLE_SECONDS = 1 + 2 * DEFAULT_EMITTER_INTERVAL_SECONDS;
@@ -43,8 +42,9 @@ public class FrameworkConfig {
     public final int serviceUnavailableMillis;
     public final String serviceFinderPath;
     public final String logListenerPath;
+    public final int appDataPort;
 
-    public static FrameworkConfig createFromProperties(Properties props) throws Exception {
+    public static Config createFromProperties(Properties props) throws Exception {
         int threads = loadInt(props, Runner.ARG_THREADS, null);
         int timeoutMillis = loadInt(props, Runner.ARG_TIMEOUT_MILLIS, null);
         String serviceName = loadString(props, Runner.ARG_SERVICE_NAME, null);
@@ -59,6 +59,7 @@ public class FrameworkConfig {
                 DEFAULT_SERVICE_UNAVAILABLE_SECONDS);
         String serviceFinderPath = loadString(props, Runner.ARG_SERVICE_FINDER_PATH, DEFAULT_SERVICE_FINDER_PATH);
         String logListenerPath = loadString(props, Runner.ARG_LOG_LISTENER_PATH, "");
+        int appDataPort = loadInt(props, Runner.ARG_APP_DATA_PORT, 0);
 
         if (threads <= 0)
             throw new Exception("config threads must positive: " + threads);
@@ -86,16 +87,18 @@ public class FrameworkConfig {
         if (serviceUnavailableSeconds < emitterIntervalSeconds)
             throw new Exception("config serviceUnavailableSeconds must be greater than emitterIntervalSeconds: "
                     + serviceUnavailableSeconds + ", " + emitterIntervalSeconds);
+        if (appDataPort < 0 || appDataPort > 65535)
+            throw new Exception("config appDataPort must be positive and less than 65536: " + appDataPort);
 
-        return new FrameworkConfig(threads, timeoutMillis, serviceName, servicePath, maxMessageOutBytes,
+        return new Config(threads, timeoutMillis, serviceName, servicePath, maxMessageOutBytes,
                 maxMessageInBytes, typicalMillis, groupName, emitterIntervalSeconds, serviceUnavailableSeconds,
-                serviceFinderPath, logListenerPath);
+                serviceFinderPath, logListenerPath, appDataPort);
     }
 
-    private FrameworkConfig(int threads, int timeoutMillis, String serviceName, String servicePath,
+    private Config(int threads, int timeoutMillis, String serviceName, String servicePath,
             int maxMessageOutBytes, int maxMessageInBytes, int typicalMillis, String groupName,
-            int emitterIntervalSeconds, int serviceUnavailableSeconds, String serviceFinderPath,
-            String logListenerPath) {
+            int emitterIntervalSeconds, int serviceUnavailableSeconds, String serviceFinderPath, String logListenerPath,
+            Integer appDataPort) {
         this.threads = threads;
         this.timeoutMillis = timeoutMillis;
         this.serviceName = serviceName;
@@ -108,6 +111,7 @@ public class FrameworkConfig {
         this.serviceUnavailableMillis = 1000 * serviceUnavailableSeconds;
         this.serviceFinderPath = serviceFinderPath;
         this.logListenerPath = logListenerPath;
+        this.appDataPort = appDataPort;
     }
 
     private static int loadInt(Properties props, String name, Integer defaultValue) throws Exception {
