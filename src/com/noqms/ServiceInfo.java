@@ -16,7 +16,6 @@
 
 package com.noqms;
 
-import java.io.Serializable;
 import java.net.InetAddress;
 
 /**
@@ -25,17 +24,15 @@ import java.net.InetAddress;
  * @author Stanley Barzee
  * @since 1.0.0
  */
-public class ServiceInfo implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class ServiceInfo {
     public final InetAddress address;
-    public final int udpPort;
+    public final int port;
     public final int timeoutMillis;
     public final long lastHeardFromTimeMillis;
 
-    public ServiceInfo(InetAddress address, int udpPort, int timeoutMillis, long lastHeardFromTimeMillis) {
+    public ServiceInfo(InetAddress address, int port, int timeoutMillis, long lastHeardFromTimeMillis) {
         this.address = address;
-        this.udpPort = udpPort;
+        this.port = port;
         this.timeoutMillis = timeoutMillis;
         this.lastHeardFromTimeMillis = lastHeardFromTimeMillis;
     }
