@@ -28,7 +28,7 @@ public class ServiceInfoEmitter extends Thread {
     private final AtomicBoolean die = new AtomicBoolean();
     private final AtomicBoolean pause = new AtomicBoolean();
 
-    public ServiceInfoEmitter(Framework framework) throws Exception {
+    public ServiceInfoEmitter(Framework framework) {
         this.framework = framework;
         setDaemon(true);
     }
@@ -52,11 +52,9 @@ public class ServiceInfoEmitter extends Thread {
 
     @Override
     public void run() {
-        FrameworkConfig config = framework.getConfig();
-        String myGroupName = config.groupName;
+        Config config = framework.getConfig();
         String myServiceName = config.serviceName;
-        InetAddress myAddress = framework.getMyInetAddress();
-        int myUdpPort = framework.getServiceUdp().getReceivePort();
+        int myPort = framework.getServiceUdp().getReceivePort();
         int myTimeoutMillis = config.timeoutMillis;
 
         while (!die.get()) {
@@ -69,12 +67,12 @@ public class ServiceInfoEmitter extends Thread {
                 }
             }
             try {
-                framework.getServiceFinder().sendMyServiceInfo(myGroupName, myServiceName, myAddress, myUdpPort,
-                        myTimeoutMillis);
+                InetAddress myAddress = Util.findMyInetAddress();
+                framework.getServiceFinder().sendMyServiceInfo(myServiceName, myAddress, myPort, myTimeoutMillis);
             } catch (Exception ex) {
                 framework.logError("pluggable service finder threw an exception in sendMyServiceInfo()", ex);
             }
-            FrameworkUtil.sleepMillis(framework.getConfig().emitterIntervalMillis);
+            Util.sleepMillis(framework.getConfig().emitterIntervalMillis);
         }
     }
 }
