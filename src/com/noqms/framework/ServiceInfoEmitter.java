@@ -17,6 +17,7 @@
 package com.noqms.framework;
 
 import java.net.InetAddress;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -56,6 +57,9 @@ public class ServiceInfoEmitter extends Thread {
         String myServiceName = config.serviceName;
         int myPort = framework.getServiceUdp().getReceivePort();
         int myTimeoutMillis = config.timeoutMillis;
+        int intervalMillis = framework.getConfig().emitterIntervalMillis;
+        int intervalHalfWindowMillis = intervalMillis / 5;
+        Random random = new Random();
 
         while (!die.get()) {
             synchronized (pause) {
@@ -72,7 +76,9 @@ public class ServiceInfoEmitter extends Thread {
             } catch (Exception ex) {
                 framework.logError("pluggable service finder threw an exception in sendMyServiceInfo()", ex);
             }
-            Util.sleepMillis(framework.getConfig().emitterIntervalMillis);
+            // Introduce jitter for better distribution when a low number of a given unique microservice exists
+            int sleepMillis = intervalMillis - intervalHalfWindowMillis + random.nextInt(2 * intervalHalfWindowMillis);
+            Util.sleepMillis(sleepMillis);
         }
     }
 }
