@@ -47,3 +47,52 @@ to run one or more microservices from an external process.
 
 [Examples](https://github.com/noqms/noqms-examples) and [Tests](https://github.com/noqms/noqms-tests) for this framework
 reside in sibling projects.
+
+To run noqms:
+
+* Install Java 12 or greater from [https://www.oracle.com/technetwork/java/javase/downloads/index.html](https://www.oracle.com/technetwork/java/javase/downloads/index.html)
+* Put all of the noqms release files and dependencies in a directory as well as your microservice jar
+* cd to that directory
+* java -server -cp **xCPx** com.noqms.Runner **key/value arguments**
+
+**xCPx** is *;. for Windows and *:. for Linux
+
+**key/value arguments** are in the form of key=value (like groupName=A serviceName=B) and include the following:
+
+     * groupName                 name of your group of interconnected microservices - must be the same between
+     *                           microservices intended to communicate with each other
+     * 
+     * serviceName               microservice name - must be unique among interconnected microservice types -
+     *                           instances of the same microservice have the same microservice name
+     * 
+     * servicePath               com.x.x.x full path of your microservice - can reside anywhere on your classpath
+     * 
+     * threads                   number of threads simultaneously executing your microservice code - increase to
+     *                           fully utilize your resources (cpu/memory/disk) - consider 10s or 100s per core
+     * 
+     * typicalMillis             typical execution time of your microservice under normal circumstances - the
+     *                           back pressure threshold is roughly determined by threads * (timeoutMillis /
+     *                           typicalMillis)
+     * 
+     * timeoutMillis             time after which unanswered requests to your microservice are considered failed
+     *                           for whatever reason - the back pressure threshold is roughly determined by
+     *                           threads * (timeoutMillis / typicalMillis)
+     * 
+     * maxMessageOutBytes        max bytes for outgoing messages from your microservice, including both requests
+     *                           and responses from you
+     * 
+     * maxMessageInBytes         max bytes for incoming messages to your microservice, including both requests
+     *                           and responses to you
+     * 
+     * emitterIntervalSeconds    default=2 - interval that microservice info is broadcast - must be the same
+     *                           between interconnected microservices
+     * 
+     * serviceUnavailableSeconds default=5 - interval after which a microservice is considered dead or
+     *                           unavailable if serviceInfo has not been received for it - must be the same
+     *                           between interconnected microservices
+     * 
+     * serviceFinderPath         default="com.noqms.finder.multicast.ServiceFinderMulticast" - the full path of a
+     *                           pluggable microservice discovery mechanism - can be anywhere on your classpath
+     * 
+     * logListenerPath           the full path of an optional listener for external log message processing - can
+     *                           be anywhere on your classpath
