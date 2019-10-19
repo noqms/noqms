@@ -7,7 +7,7 @@ Microservices without a centralized queue is a perfectly viable architecture giv
 an efficient way for the microservices to discover each other. UDP multicast is a great solution for
 this - unfortunately most cloud providers do not support UDP multicast. This framework includes a pluggable
 Service Finder which allows users to create their own discovery mechanism and class, replacing 
-the built in UDP multicast discovery mechanism if needed.
+the built in UDP multicast service finder if needed. Note: a [unicast service finder](https://github.com/noqms/noqms-finder-unicast) is now available as well as the required accompanying [unicast service finder server](https://github.com/noqms/noqms-finder-unicast-server)
 
 I coined the term NoQMS - No Queue Microservices - to describe microservices with no dependency on
 a centralized queue.
