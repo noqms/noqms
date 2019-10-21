@@ -29,6 +29,7 @@ public class Config {
     private static final int MAX_STRING_LENGTH = 100;
     private static final int DEFAULT_EMITTER_INTERVAL_SECONDS = 2;
     private static final int DEFAULT_SERVICE_UNAVAILABLE_SECONDS = 1 + 2 * DEFAULT_EMITTER_INTERVAL_SECONDS;
+    private static final int MAX_EMITTER_INTERVAL_SECONDS = 10;
 
     public final String groupName;
     public final int threads;
@@ -80,25 +81,25 @@ public class Config {
         if (groupName.length() > MAX_STRING_LENGTH)
             throw new Exception(
                     "config groupName length must not be greater than " + MAX_STRING_LENGTH + ": " + groupName);
-        if (emitterIntervalSeconds <= 0)
-            throw new Exception("config emitterIntervalSeconds must be positive: " + maxMessageOutBytes);
+        if (emitterIntervalSeconds <= 0 || emitterIntervalSeconds > MAX_EMITTER_INTERVAL_SECONDS)
+            throw new Exception("config emitterIntervalSeconds must be positive and no more than "
+                    + MAX_EMITTER_INTERVAL_SECONDS + " seconds: " + maxMessageOutBytes);
         if (serviceUnavailableSeconds <= 0)
             throw new Exception("config serviceUnavailableSeconds must be positive: " + maxMessageOutBytes);
         if (serviceUnavailableSeconds < emitterIntervalSeconds)
             throw new Exception("config serviceUnavailableSeconds must be greater than emitterIntervalSeconds: "
                     + serviceUnavailableSeconds + ", " + emitterIntervalSeconds);
         if (appDataPort < 0 || appDataPort > 65535)
-            throw new Exception("config appDataPort must be positive and less than 65536: " + appDataPort);
+            throw new Exception("config appDataPort must be positive and no more than 65535: " + appDataPort);
 
-        return new Config(threads, timeoutMillis, serviceName, servicePath, maxMessageOutBytes,
-                maxMessageInBytes, typicalMillis, groupName, emitterIntervalSeconds, serviceUnavailableSeconds,
-                serviceFinderPath, logListenerPath, appDataPort);
+        return new Config(threads, timeoutMillis, serviceName, servicePath, maxMessageOutBytes, maxMessageInBytes,
+                typicalMillis, groupName, emitterIntervalSeconds, serviceUnavailableSeconds, serviceFinderPath,
+                logListenerPath, appDataPort);
     }
 
-    private Config(int threads, int timeoutMillis, String serviceName, String servicePath,
-            int maxMessageOutBytes, int maxMessageInBytes, int typicalMillis, String groupName,
-            int emitterIntervalSeconds, int serviceUnavailableSeconds, String serviceFinderPath, String logListenerPath,
-            Integer appDataPort) {
+    private Config(int threads, int timeoutMillis, String serviceName, String servicePath, int maxMessageOutBytes,
+            int maxMessageInBytes, int typicalMillis, String groupName, int emitterIntervalSeconds,
+            int serviceUnavailableSeconds, String serviceFinderPath, String logListenerPath, Integer appDataPort) {
         this.threads = threads;
         this.timeoutMillis = timeoutMillis;
         this.serviceName = serviceName;
