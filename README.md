@@ -96,3 +96,7 @@ To run noqms:
      * 
      * logListenerPath           the full path of an optional listener for external log message processing - can
      *                           be anywhere on your classpath
+     *
+     * appDataPort               default=any available - UDP port this service reads for incoming application
+     *                           data
+     
