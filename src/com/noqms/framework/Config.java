@@ -43,7 +43,7 @@ public class Config {
     public final int serviceUnavailableMillis;
     public final String serviceFinderPath;
     public final String logListenerPath;
-    public final int appDataPort;
+    public final int dataPort;
 
     public static Config createFromProperties(Properties props) throws Exception {
         int threads = loadInt(props, Runner.ARG_THREADS, null);
@@ -60,7 +60,7 @@ public class Config {
                 DEFAULT_SERVICE_UNAVAILABLE_SECONDS);
         String serviceFinderPath = loadString(props, Runner.ARG_SERVICE_FINDER_PATH, DEFAULT_SERVICE_FINDER_PATH);
         String logListenerPath = loadString(props, Runner.ARG_LOG_LISTENER_PATH, "");
-        int appDataPort = loadInt(props, Runner.ARG_APP_DATA_PORT, 0);
+        int dataPort = loadInt(props, Runner.ARG_DATA_PORT, 0);
 
         if (threads <= 0)
             throw new Exception("config threads must positive: " + threads);
@@ -89,17 +89,17 @@ public class Config {
         if (serviceUnavailableSeconds < emitterIntervalSeconds)
             throw new Exception("config serviceUnavailableSeconds must be greater than emitterIntervalSeconds: "
                     + serviceUnavailableSeconds + ", " + emitterIntervalSeconds);
-        if (appDataPort < 0 || appDataPort > 65535)
-            throw new Exception("config appDataPort must be positive and no more than 65535: " + appDataPort);
+        if (dataPort < 0 || dataPort > 65535)
+            throw new Exception("config dataPort must be positive and no more than 65535: " + dataPort);
 
         return new Config(threads, timeoutMillis, serviceName, servicePath, maxMessageOutBytes, maxMessageInBytes,
                 typicalMillis, groupName, emitterIntervalSeconds, serviceUnavailableSeconds, serviceFinderPath,
-                logListenerPath, appDataPort);
+                logListenerPath, dataPort);
     }
 
     private Config(int threads, int timeoutMillis, String serviceName, String servicePath, int maxMessageOutBytes,
             int maxMessageInBytes, int typicalMillis, String groupName, int emitterIntervalSeconds,
-            int serviceUnavailableSeconds, String serviceFinderPath, String logListenerPath, Integer appDataPort) {
+            int serviceUnavailableSeconds, String serviceFinderPath, String logListenerPath, Integer dataPort) {
         this.threads = threads;
         this.timeoutMillis = timeoutMillis;
         this.serviceName = serviceName;
@@ -112,7 +112,7 @@ public class Config {
         this.serviceUnavailableMillis = 1000 * serviceUnavailableSeconds;
         this.serviceFinderPath = serviceFinderPath;
         this.logListenerPath = logListenerPath;
-        this.appDataPort = appDataPort;
+        this.dataPort = dataPort;
     }
 
     private static int loadInt(Properties props, String name, Integer defaultValue) throws Exception {

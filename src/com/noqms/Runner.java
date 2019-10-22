@@ -51,7 +51,7 @@ public class Runner {
     public static final String ARG_SERVICE_UNAVAILABLE_SECONDS = "serviceUnavailableSeconds";
     public static final String ARG_SERVICE_FINDER_PATH = "serviceFinderPath";
     public static final String ARG_LOG_LISTENER_PATH = "logListenerPath";
-    public static final String ARG_APP_DATA_PORT = "appDataPort";
+    public static final String ARG_DATA_PORT = "dataPort";
 
     /**
      * Start the microservice at servicePath and with the specified command line parameters.
@@ -96,8 +96,8 @@ public class Runner {
      * @param logListenerPath           the full path of an optional listener for external log message processing - can
      *                                  be anywhere on your classpath
      * 
-     * @param appDataPort               default=any available - UDP port this service reads for incoming application
-     *                                  data
+     * @param dataPort                  default=any available - UDP port this service reads for incoming microservice
+     *                                  application data
      */
     public static void main(String[] args) {
         Properties props = null;
