@@ -42,7 +42,7 @@ public class ServiceUdp extends Thread {
 
         Config config = framework.getConfig();
 
-        datagramSocket = config.dataPort == 0 ? new DatagramSocket() : new DatagramSocket(config.dataPort);
+        datagramSocket = new DatagramSocket(config.dataPort);
         datagramSocket.setSoTimeout(0);
         datagramSocket.setReceiveBufferSize(UDP_BUFFER_CAPACITY_MESSAGES * (MessageHeader.MAX_BYTES + config.maxMessageInBytes));
         datagramSocket.setSendBufferSize(UDP_BUFFER_CAPACITY_MESSAGES * (MessageHeader.MAX_BYTES + config.maxMessageOutBytes));
