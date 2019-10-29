@@ -50,7 +50,7 @@ reside in sibling projects.
 
 To run noqms:
 
-* Install Java 12 or greater from [https://www.oracle.com/technetwork/java/javase/downloads/index.html](https://www.oracle.com/technetwork/java/javase/downloads/index.html)
+* Install Java 12 or greater
 * Put all of the noqms release files and dependencies in a directory as well as your microservice jar
 * cd to that directory
 * java -server -cp **xCPx** com.noqms.Runner **key/value arguments**
