@@ -5,9 +5,13 @@ NoQMS - No Queue Microservices - Java Framework
 
 Microservices without a centralized queue is a perfectly viable architecture given there is 
 an efficient way for the microservices to discover each other. UDP multicast is a great solution for
-this - unfortunately most cloud providers do not support UDP multicast. This framework includes a pluggable
-Service Finder which allows users to create their own discovery mechanism and class, replacing 
-the built in UDP multicast service finder if needed. Note: a [unicast service finder](https://github.com/noqms/noqms-finder-unicast) is now available as well as the required accompanying [unicast service finder server](https://github.com/noqms/noqms-finder-unicast-server)
+this. UDP multicast is supported by Linode and Digital Ocean, for example, but not by the other major
+cloud providers. For the others, this framework includes a pluggable Service Finder which allows developers 
+to create their own discovery mechanism and class, replacing the built in UDP multicast service finder if 
+needed. A unicast implementation of this [unicast service finder](https://github.com/noqms/noqms-finder-unicast) 
+is now available as well as the required accompanying [unicast service finder server](https://github.com/noqms/noqms-finder-unicast-server) for use in those environments that do not support UDP multicast. Running in an environment without 
+UDP multicast somewhat reduces the attractiveness of NoQMS which otherwise requires no other running process 
+to accommodate a microservice system.
 
 I coined the term NoQMS - No Queue Microservices - to describe microservices with no dependency on
 a centralized queue.
@@ -20,17 +24,16 @@ This allows you to adjust to better take advantage of the (virtual) environment'
 Outside of the single (potentially multi-threaded) microservice instance, the framework supports discovering and
 utilizing all microservice instances (running, ideally, on virtual environments of their own) 
 that are making their presence and availability known. This yields scalability and also better reliability in the event 
-of failure as you would expect. A noqms microservice can also run within a container orchestration system
+of failure as you would expect. A NoQMS microservice can also run within a container orchestration system
 and benefit from all the goodies that brings just like traditional microservices. 
 
-UDP unicast is an excellent choice for the application level inter microservice messages. Developers need to be wiser 
-about dismissing UDP offhand. Utilized correctly, it scales far beyond TCP for obvious reasons. We must never dismiss 
-the actuality of just how reliable UDP can be when there is, in fact, something on the other side expecting 
-the data and processing it in a timely fashion. The downside of UDP includes single packet limits of under 64K. So write your 
-microservices accordingly, thinking carefully about not turning it into a <i>macro</i>service before applying 
-workarounds (paging, application level packet reassembly, etc) for that limit. Additionally, in the event of
-transmission failure, we know that we must program for failure anyway in order to have a robust system. Timeouts 
-are an integral part of the noqms framework, covered next.
+UDP unicast is an excellent choice for the application level inter microservice messages. Developers should not
+dismiss UDP offhand. Utilized correctly, it scales far beyond TCP for obvious reasons. UDP is very reliable
+when there the receiving end is processing the data in a timely fashion. One downside of UDP includes 
+single packet limits of under 64K. So write your microservices accordingly, thinking carefully about not turning it 
+into a <i>macro</i>service before applying workarounds (paging, application level packet reassembly, etc) for that limit. 
+Additionally, in the event of transmission failure, we know that we must program for failure anyway in order to have a 
+robust system. Timeouts are an integral part of the NoQMS framework, covered next.
 
 Timeouts are first class citizens in this architecture. With each microservice the application developer specifies the
 typicalMillis and the timeoutMillis for that microservices. The framework handles the rest - notifying a requester when
@@ -63,7 +66,7 @@ To run noqms:
      *                           microservices intended to communicate with each other
      * 
      * serviceName               microservice name - must be unique among interconnected microservice types -
-     *                           instances of the same microservice have the same microservice name
+     *                           instances of the same microservice type have the same microservice name
      * 
      * servicePath               com.x.x.x full path of your microservice - can reside anywhere on your classpath
      * 
@@ -88,7 +91,7 @@ To run noqms:
      *                           between interconnected microservices
      * 
      * serviceUnavailableSeconds default=5 - interval after which a microservice is considered dead or
-     *                           unavailable if serviceInfo has not been received for it - must be the same
+     *                           unavailable if microservice info has not been received for it - must be the same
      *                           between interconnected microservices
      * 
      * serviceFinderPath         default="com.noqms.finder.multicast.ServiceFinderMulticast" - the full path of a
@@ -98,5 +101,5 @@ To run noqms:
      *                           be anywhere on your classpath
      *
      * dataPort                  default=any available - UDP port the framework reads for incoming microservice
-     *                           application data
+     *                           application data - this is broadcast automatically by the framework
      
