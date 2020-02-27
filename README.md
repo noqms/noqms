@@ -8,8 +8,8 @@ an efficient way for the microservices to discover each other. UDP multicast is 
 this. UDP multicast is supported by Linode and Digital Ocean, for example, but not by the other major
 cloud providers. For the others, this framework includes a pluggable Service Finder which allows developers 
 to create their own discovery mechanism and class, replacing the built in UDP multicast service finder if 
-needed. A unicast implementation of this [unicast service finder](https://github.com/noqms/noqms-finder-unicast) 
-is now available as well as the required accompanying [unicast service finder server](https://github.com/noqms/noqms-finder-unicast-server) for use in those environments that do not support UDP multicast. Running in an environment without 
+needed. A unicast implementation of this ([unicast service finder](https://github.com/noqms/noqms-finder-unicast)) 
+is now available as well as the required accompanying server ([unicast service finder server](https://github.com/noqms/noqms-finder-unicast-server)) for use in those environments that do not support UDP multicast. Running in an environment without 
 UDP multicast somewhat reduces the attractiveness of NoQMS which otherwise requires no other running process 
 to accommodate a microservice system.
 
