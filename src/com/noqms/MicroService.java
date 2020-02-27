@@ -91,8 +91,8 @@ public class MicroService {
 
     /**
      * Make a request of a microservice and require a response. Returns immediately. Immediately check the request
-     * status of the call with ResponseStatus.getRequestStatus(). Deal with the ResponseFuture in your code later using
-     * ResponseStatus.await() when resolution of the response is desired.
+     * status of the call with ResponseFuture.getRequestStatus(). Deal with the ResponseFuture in your code later using
+     * ResponseFuture.await() when resolution of the response is desired.
      * 
      * @param serviceNameTo name of the destination microservice
      * @param data          application and microservice specific message data
