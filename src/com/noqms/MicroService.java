@@ -48,7 +48,7 @@ public class MicroService {
      * @param data            application and microservice specific message data
      */
     public void processRequest(Long requestId, String serviceNameFrom, byte[] data) {
-        framework.logError("a request was received to an unimplemented processRequest()", null);
+        framework.logError("A request was received to an unimplemented processRequest()", null);
     }
 
     /**
@@ -62,13 +62,13 @@ public class MicroService {
      */
     public void sendResponse(Long requestId, Integer code, String userMessage, String nerdDetail, byte[] data) {
         if (requestId == null || requestId <= 0)
-            throw new IllegalArgumentException("responseId must be positive");
+            throw new IllegalArgumentException("Parameter requestId must be positive");
         if (userMessage != null && userMessage.length() > MAX_STRING_LENGTH)
-            throw new IllegalArgumentException("userMessage length must be no greater than " + MAX_STRING_LENGTH);
+            throw new IllegalArgumentException("Parameter userMessage length must be no greater than " + MAX_STRING_LENGTH);
         if (nerdDetail != null && nerdDetail.length() > MAX_STRING_LENGTH)
-            throw new IllegalArgumentException("nerdDetail length must be no greater than " + MAX_STRING_LENGTH);
+            throw new IllegalArgumentException("Parameter nerdDetail length must be no greater than " + MAX_STRING_LENGTH);
         if (data != null && data.length > MAX_DATA_LENGTH)
-            throw new IllegalArgumentException("data length must be no greater than " + MAX_DATA_LENGTH);
+            throw new IllegalArgumentException("Parameter data length must be no greater than " + MAX_DATA_LENGTH);
         framework.getProcessor().sendResponse(requestId, code, userMessage, nerdDetail, data);
     }
 
@@ -81,11 +81,11 @@ public class MicroService {
      */
     public RequestStatus sendRequest(String serviceNameTo, byte[] data) {
         if (serviceNameTo == null || serviceNameTo.isBlank())
-            throw new IllegalArgumentException("serviceNameTo is required");
+            throw new IllegalArgumentException("Parameter serviceNameTo is required");
         if (serviceNameTo.length() > MAX_STRING_LENGTH)
-            throw new IllegalArgumentException("serviceNameTo length must be no greater than " + MAX_STRING_LENGTH);
+            throw new IllegalArgumentException("Parameter serviceNameTo length must be no greater than " + MAX_STRING_LENGTH);
         if (data != null && data.length > MAX_DATA_LENGTH)
-            throw new IllegalArgumentException("data length must be no greater than " + MAX_DATA_LENGTH);
+            throw new IllegalArgumentException("Parameter data length must be no greater than " + MAX_DATA_LENGTH);
         return framework.getProcessor().sendRequest(serviceNameTo, data);
     }
 
@@ -100,11 +100,11 @@ public class MicroService {
      */
     public ResponseFuture sendRequestExpectResponse(String serviceNameTo, byte[] data) {
         if (serviceNameTo == null || serviceNameTo.isBlank())
-            throw new IllegalArgumentException("serviceNameTo is required");
+            throw new IllegalArgumentException("Parameter serviceNameTo is required");
         if (serviceNameTo.length() > MAX_STRING_LENGTH)
-            throw new IllegalArgumentException("serviceNameTo length must be no greater than " + MAX_STRING_LENGTH);
+            throw new IllegalArgumentException("Parameter serviceNameTo length must be no greater than " + MAX_STRING_LENGTH);
         if (data != null && data.length > MAX_DATA_LENGTH)
-            throw new IllegalArgumentException("data length must be no greater than " + MAX_DATA_LENGTH);
+            throw new IllegalArgumentException("Parameter data length must be no greater than " + MAX_DATA_LENGTH);
         return framework.getProcessor().sendRequestExpectResponse(serviceNameTo, data);
     }
 }

@@ -63,34 +63,34 @@ public class Config {
         int dataPort = loadInt(props, Runner.ARG_DATA_PORT, 0);
 
         if (threads <= 0)
-            throw new Exception("config threads must positive: " + threads);
+            throw new Exception("Config threads must positive: " + threads);
         if (timeoutMillis <= 0)
-            throw new Exception("config timeoutMillis must be positive: " + timeoutMillis);
+            throw new Exception("Config timeoutMillis must be positive: " + timeoutMillis);
         if (serviceName.length() > MAX_STRING_LENGTH)
             throw new Exception(
-                    "config serviceName length must not be greater than " + MAX_STRING_LENGTH + ": " + serviceName);
+                    "Config serviceName length must not be greater than " + MAX_STRING_LENGTH + ": " + serviceName);
         if (maxMessageOutBytes < 0)
-            throw new Exception("config maxMessageOutBytes must be zero or more: " + maxMessageOutBytes);
+            throw new Exception("Config maxMessageOutBytes must be zero or more: " + maxMessageOutBytes);
         if (maxMessageInBytes < 0)
-            throw new Exception("config maxMessageInBytes must be zero or more: " + maxMessageInBytes);
+            throw new Exception("Config maxMessageInBytes must be zero or more: " + maxMessageInBytes);
         if (typicalMillis <= 0)
-            throw new Exception("config typicalMillis must be positive: " + typicalMillis);
+            throw new Exception("Config typicalMillis must be positive: " + typicalMillis);
         if (timeoutMillis < typicalMillis)
             throw new Exception(
-                    "config timeoutMillis must be greater than typicalMillis: " + timeoutMillis + ", " + typicalMillis);
+                    "Config timeoutMillis must be greater than typicalMillis: " + timeoutMillis + ", " + typicalMillis);
         if (groupName.length() > MAX_STRING_LENGTH)
             throw new Exception(
-                    "config groupName length must not be greater than " + MAX_STRING_LENGTH + ": " + groupName);
+                    "Config groupName length must not be greater than " + MAX_STRING_LENGTH + ": " + groupName);
         if (emitterIntervalSeconds <= 0 || emitterIntervalSeconds > MAX_EMITTER_INTERVAL_SECONDS)
-            throw new Exception("config emitterIntervalSeconds must be positive and no more than "
+            throw new Exception("Config emitterIntervalSeconds must be positive and no more than "
                     + MAX_EMITTER_INTERVAL_SECONDS + " seconds: " + maxMessageOutBytes);
         if (serviceUnavailableSeconds <= 0)
-            throw new Exception("config serviceUnavailableSeconds must be positive: " + maxMessageOutBytes);
+            throw new Exception("Config serviceUnavailableSeconds must be positive: " + maxMessageOutBytes);
         if (serviceUnavailableSeconds < emitterIntervalSeconds)
-            throw new Exception("config serviceUnavailableSeconds must be greater than emitterIntervalSeconds: "
+            throw new Exception("Config serviceUnavailableSeconds must be greater than emitterIntervalSeconds: "
                     + serviceUnavailableSeconds + ", " + emitterIntervalSeconds);
         if (dataPort < 0 || dataPort > 65535)
-            throw new Exception("config dataPort must be positive and no more than 65535: " + dataPort);
+            throw new Exception("Config dataPort must be positive and no more than 65535: " + dataPort);
 
         return new Config(threads, timeoutMillis, serviceName, servicePath, maxMessageOutBytes, maxMessageInBytes,
                 typicalMillis, groupName, emitterIntervalSeconds, serviceUnavailableSeconds, serviceFinderPath,
@@ -119,7 +119,7 @@ public class Config {
         String strValue = props.getProperty(name);
         if (strValue == null) {
             if (defaultValue == null)
-                throw new Exception("config value required: " + name);
+                throw new Exception("Config value required: " + name);
             else
                 return defaultValue;
         }
@@ -130,7 +130,7 @@ public class Config {
         String strValue = props.getProperty(name);
         if (strValue == null || strValue.isBlank()) {
             if (defaultValue == null)
-                throw new Exception("config value required: " + name);
+                throw new Exception("Config value required: " + name);
             else
                 return defaultValue;
         }

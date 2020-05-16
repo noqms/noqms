@@ -38,7 +38,7 @@ public class Util {
         for (String arg : args) {
             int equalsPos = arg.indexOf('=');
             if (equalsPos < 1)
-                throw new Exception("failed parsing arg for key value pair: " + arg);
+                throw new Exception("Failed parsing arg for key value pair: " + arg);
             String key = arg.substring(0, equalsPos);
             String value = arg.substring(equalsPos + 1);
             props.put(key, value);
@@ -60,9 +60,9 @@ public class Util {
             if (address != null && !address.isAnyLocalAddress())
                 return address;
         } catch (Exception ex) {
-            throw new Exception("error obtaining my own ip address", ex);
+            throw new Exception("Error obtaining my own ip address", ex);
         }
-        throw new Exception("my own ip address cannot be found");
+        throw new Exception("My own ip address cannot be found");
     }
 
     public static void sleepMillis(long millis) {

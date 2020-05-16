@@ -43,7 +43,7 @@ public class Framework {
 
     public MicroService start(Properties props) {
         if (props == null)
-            throw new IllegalArgumentException("start properties must be given");
+            throw new IllegalArgumentException("Start properties must be given");
 
         for (Object key : props.keySet())
             System.setProperty((String)key, props.getProperty((String)key));
@@ -63,7 +63,7 @@ public class Framework {
 
         logThread = new LogThread(config.serviceName, logListener);
         logThread.start();
-        logInfo("starting: " + props);
+        logInfo("Starting: " + props);
         Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHook());
         Runtime.getRuntime().addShutdownHook(new ShutdownHook());
 
@@ -83,7 +83,7 @@ public class Framework {
             processor = new Processor(this);
             processor.start();
         } catch (Exception ex) {
-            logFatal("start exception", ex);
+            logFatal("Start exception", ex);
             exit();
             Util.sleepMillis(Integer.MAX_VALUE);
         }
@@ -93,7 +93,7 @@ public class Framework {
         // Time is given to become aware of the other microservices, important if the finder is a multicast
         // architecture.
         Util.sleepMillis(2 * config.emitterIntervalMillis);
-        logInfo("started: address=" + myInetAddress + " port=" + serviceUdp.getReceivePort() + " group="
+        logInfo("Started: address=" + myInetAddress + " port=" + serviceUdp.getReceivePort() + " group="
                 + config.groupName);
 
         return processor.getMicroService();
@@ -153,7 +153,7 @@ public class Framework {
     private class UncaughtExceptionHook implements UncaughtExceptionHandler {
         @Override
         public void uncaughtException(Thread thread, Throwable cause) {
-            logFatal("uncaught exception", cause);
+            logFatal("Uncaught exception", cause);
             exit();
         }
     }
@@ -161,7 +161,7 @@ public class Framework {
     private class ShutdownHook extends Thread {
         @Override
         public void run() {
-            logInfo("ending");
+            logInfo("Ending");
             if (serviceInfoEmitter != null)
                 serviceInfoEmitter.die();
             if (serviceFinder != null) {
@@ -172,7 +172,7 @@ public class Framework {
             }
             if (processor != null)
                 processor.logRunningStats();
-            logInfo("ended");
+            logInfo("Ended");
             Util.sleepMillis(100);
         }
     }

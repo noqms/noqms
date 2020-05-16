@@ -67,7 +67,7 @@ public class Processor extends Thread {
             microService = (MicroService)constructor.newInstance();
             microService.setFramework(framework);
         } catch (Exception ex) {
-            throw new Exception("failed loading your microservice: " + config.servicePath, ex);
+            throw new Exception("Failed loading your microservice: " + config.servicePath, ex);
         }
 
         for (int ix = 0; ix < config.threads; ix++)
@@ -103,17 +103,17 @@ public class Processor extends Thread {
             service = framework.getServiceFinder().findService(serviceNameTo);
         } catch (Exception ex) {
             perMinuteStats.failedRequests.incrementAndGet();
-            framework.logError("the pluggable service finder threw an exception in findService()", ex);
+            framework.logError("The pluggable service finder threw an exception in findService()", ex);
             return new ResponseFuture(RequestStatus.ServiceNotFound);
         }
         if (service == null) {
             perMinuteStats.failedRequests.incrementAndGet();
-            framework.logWarn("sendRequestExpectResponse() serviceNameTo not found: " + serviceNameTo);
+            framework.logWarn("The sendRequestExpectResponse() serviceNameTo service does not exist: " + serviceNameTo);
             return new ResponseFuture(RequestStatus.ServiceNotFound);
         }
         if (service.elapsedMillis > framework.getConfig().serviceUnavailableMillis) {
             perMinuteStats.failedRequests.incrementAndGet();
-            framework.logWarn("sendRequestExpectResponse() serviceNameTo not responsive: " + serviceNameTo);
+            framework.logWarn("The sendRequestExpectResponse() serviceNameTo service is not responsive: " + serviceNameTo);
             return new ResponseFuture(RequestStatus.ServiceNotResponsive);
         }
         MessageHeader header = new MessageHeader();
@@ -133,17 +133,17 @@ public class Processor extends Thread {
             service = framework.getServiceFinder().findService(serviceNameTo);
         } catch (Exception ex) {
             perMinuteStats.failedRequests.incrementAndGet();
-            framework.logError("the pluggable service finder threw an exception in findService()", ex);
+            framework.logError("The pluggable service finder threw an exception in findService()", ex);
             return RequestStatus.ServiceNotFound;
         }
         if (service == null) {
             perMinuteStats.failedRequests.incrementAndGet();
-            framework.logWarn("sendRequest serviceNameTo not found: " + serviceNameTo);
+            framework.logWarn("The sendRequest() serviceNameTo service is not found: " + serviceNameTo);
             return RequestStatus.ServiceNotFound;
         }
         if (service.elapsedMillis > framework.getConfig().serviceUnavailableMillis) {
             perMinuteStats.failedRequests.incrementAndGet();
-            framework.logWarn("sendRequest serviceNameTo not responsive: " + serviceNameTo);
+            framework.logWarn("The sendRequest() serviceNameTo service is not responsive: " + serviceNameTo);
             return RequestStatus.ServiceNotResponsive;
         }
         MessageHeader header = new MessageHeader();
@@ -182,11 +182,11 @@ public class Processor extends Thread {
                 perMinuteStats.backPressureApplied = true;
                 boolean wasPaused = framework.getServiceInfoEmitter().pause();
                 if (!wasPaused)
-                    framework.logInfo("applying back pressure");
+                    framework.logInfo("Applying back pressure");
             } else {
                 boolean wasPaused = framework.getServiceInfoEmitter().unpause();
                 if (wasPaused)
-                    framework.logInfo("removing back pressure");
+                    framework.logInfo("Removing back pressure");
             }
 
             while (true) {
@@ -202,7 +202,7 @@ public class Processor extends Thread {
                     RequestToMeExpectingResponse requestToMe = requestsToMeByInternalRequestId
                             .remove(messageFromMe.internalRequestId);
                     if (requestToMe == null) {
-                        framework.logWarn("my response has no or expired request: response=" + gson.toJson(header));
+                        framework.logWarn("My response has no or expired request: response=" + gson.toJson(header));
                     } else {
                         perMinuteStats.responsesSent++;
                         header.serviceNameTo = requestToMe.header.serviceNameFrom;
@@ -241,7 +241,7 @@ public class Processor extends Thread {
                     RequestFromMeExpectingResponse requestFromMe = requestsFromMeByRequestId.remove(header.id);
                     if (requestFromMe == null) {
                         framework
-                                .logWarn("a response to me has no or expired request: response=" + gson.toJson(header));
+                                .logWarn("A response to me has no or expired request: response=" + gson.toJson(header));
                     } else {
                         perMinuteStats.responsesReceived++;
                         ResponseFuture.Response response = new ResponseFuture.Response(false, header.serviceNameFrom,
@@ -277,7 +277,7 @@ public class Processor extends Thread {
                     perMinuteStats.responsesDroppedByOthers++;
                     ResponseFuture.Response response = new ResponseFuture.Response(true, null, null, 0, null, null);
                     request.responseFuture.set(response);
-                    framework.logWarn("a request from me was not responded to in time: timeoutMillis="
+                    framework.logWarn("A request from me was not responded to in time: timeoutMillis="
                             + expiringId.timeoutMillis + ": " + gson.toJson(request.header));
                 }
             }
@@ -289,7 +289,7 @@ public class Processor extends Thread {
                 RequestToMeExpectingResponse request = requestsToMeByInternalRequestId.remove(expiringId.id);
                 if (request != null) {
                     perMinuteStats.responsesDroppedByMe++;
-                    framework.logWarn("a request to me was not responded to in time: timeoutMillis="
+                    framework.logWarn("A request to me was not responded to in time: timeoutMillis="
                             + expiringId.timeoutMillis + ": " + gson.toJson(request.header));
                 }
             }

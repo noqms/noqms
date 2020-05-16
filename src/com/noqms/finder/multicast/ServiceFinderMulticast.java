@@ -87,7 +87,7 @@ public class ServiceFinderMulticast extends ServiceFinder {
                 try {
                     multicastSocket.receive(packet); // blocking
                 } catch (Exception ex) {
-                    logger.logError("error receiving service finder multicast packet", ex);
+                    logger.logError("Error receiving service finder multicast packet", ex);
                     continue;
                 }
 
@@ -96,12 +96,12 @@ public class ServiceFinderMulticast extends ServiceFinder {
                     message = gson.fromJson(new String(packet.getData(), 0, packet.getLength(), StandardCharsets.UTF_8),
                             ModelMulticast.class);
                 } catch (Exception ex) {
-                    logger.logError("unable to deserialize received service finder multicast message", ex);
+                    logger.logError("Unable to deserialize received service finder multicast message", ex);
                     continue;
                 }
                 if (message.serviceName == null || message.serviceName.isBlank() || message.timeoutMillis <= 0
                         || message.groupName == null) {
-                    logger.logError("bad service finder multicast message received: " + gson.toJson(message), null);
+                    logger.logError("Bad service finder multicast message received: " + gson.toJson(message), null);
                     continue;
                 }
 
@@ -128,7 +128,7 @@ public class ServiceFinderMulticast extends ServiceFinder {
         int dataLength = data.length;
 
         if (dataLength > ModelMulticast.MAX_BYTES) {
-            logger.logError("send service finder multicast message length exceeds maximum: " + dataLength + " > "
+            logger.logError("Send service finder multicast message length exceeds maximum: " + dataLength + " > "
                     + ModelMulticast.MAX_BYTES, null);
             return;
         }
@@ -136,7 +136,7 @@ public class ServiceFinderMulticast extends ServiceFinder {
         try {
             multicastSocket.send(new DatagramPacket(data, dataLength, multicastAddress, multicastPort));
         } catch (Exception ex) {
-            logger.logError("error sending service finder multicast packet", ex);
+            logger.logError("Error sending service finder multicast packet", ex);
         }
     }
 

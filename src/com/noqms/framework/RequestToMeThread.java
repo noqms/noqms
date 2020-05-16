@@ -66,7 +66,7 @@ public class RequestToMeThread extends Thread {
                 try {
                     microservice.processRequest(request.requestId, request.serviceNameFrom, request.data);
                 } catch (Exception ex) {
-                    framework.logError("your microservice threw an exception in processRequest()", ex);
+                    framework.logError("Your microservice threw an exception in processRequest()", ex);
                 }
             }
         }
