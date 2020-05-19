@@ -97,9 +97,6 @@ To run noqms:
      * serviceFinderPath         default="com.noqms.finder.multicast.ServiceFinderMulticast" - the full path of a
      *                           pluggable microservice discovery mechanism - can be anywhere on your classpath
      * 
-     * logListenerPath           the full path of an optional listener for external log message processing - can
-     *                           be anywhere on your classpath
-     *
      * dataPort                  default=any available - UDP port the framework reads for incoming microservice
      *                           application data - this is broadcast automatically by the framework
      

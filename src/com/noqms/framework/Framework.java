@@ -16,8 +16,6 @@
 
 package com.noqms.framework;
 
-import java.lang.Thread.UncaughtExceptionHandler;
-
 import java.lang.reflect.Constructor;
 import java.net.InetAddress;
 import java.util.Properties;
@@ -32,42 +30,35 @@ import com.noqms.ServiceFinder;
  * @since 1.0.0
  */
 public class Framework {
-    private final AtomicBoolean exiting = new AtomicBoolean();
     private LogThread logThread;
     private Config config;
+    private Properties props;
     private ServiceInfoEmitter serviceInfoEmitter;
     private Processor processor;
     private ServiceFinder serviceFinder;
     private ServiceUdp serviceUdp;
-    private LogListener logListener;
+    private AtomicBoolean stopped;
 
-    public MicroService start(Properties props) {
+    public MicroService start(Properties props, LogListener logListener) throws Exception {
         if (props == null)
             throw new IllegalArgumentException("Start properties must be given");
-
-        for (Object key : props.keySet())
-            System.setProperty((String)key, props.getProperty((String)key));
+        this.props = props;
 
         try {
             config = Config.createFromProperties(props);
-            if (!config.logListenerPath.isBlank()) {
-                Class<?> objectClass = Class.forName(config.logListenerPath);
-                Constructor<?> constructor = objectClass.getConstructor();
-                logListener = (LogListener)constructor.newInstance();
-            }
         } catch (Exception ex) {
-            System.err.println("start exception: " + ex.toString());
-            exit();
-            Util.sleepMillis(Integer.MAX_VALUE);
+            if (logListener != null)
+                logListener.logFatal("Config exception: " + ex.getMessage(), null);
+            else
+                System.err.println("Noqms: Start exception: " + ex.getMessage());
+            throw ex;
         }
 
         logThread = new LogThread(config.serviceName, logListener);
         logThread.start();
         logInfo("Starting: " + props);
-        Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHook());
-        Runtime.getRuntime().addShutdownHook(new ShutdownHook());
 
-        serviceInfoEmitter = new ServiceInfoEmitter(this);        
+        serviceInfoEmitter = new ServiceInfoEmitter(this);
         InetAddress myInetAddress = null;
 
         try {
@@ -76,22 +67,20 @@ public class Framework {
             serviceUdp.start();
 
             Class<?> objectClass = Class.forName(config.serviceFinderPath);
-            Constructor<?> constructor = objectClass.getConstructor(String.class, LogListener.class);
-            serviceFinder = (ServiceFinder)constructor.newInstance(config.groupName, logThread);
+            Constructor<?> constructor = objectClass.getConstructor(String.class, LogListener.class, Properties.class);
+            serviceFinder = (ServiceFinder)constructor.newInstance(config.groupName, logThread, props);
             serviceFinder.start();
 
             processor = new Processor(this);
             processor.start();
         } catch (Exception ex) {
             logFatal("Start exception", ex);
-            exit();
-            Util.sleepMillis(Integer.MAX_VALUE);
+            throw ex;
         }
 
         serviceInfoEmitter.start();
 
-        // Time is given to become aware of the other microservices, important if the finder is a multicast
-        // architecture.
+        // Time is given to become aware of the other microservices, important if the finder is multicast.
         Util.sleepMillis(2 * config.emitterIntervalMillis);
         logInfo("Started: address=" + myInetAddress + " port=" + serviceUdp.getReceivePort() + " group="
                 + config.groupName);
@@ -101,6 +90,10 @@ public class Framework {
 
     public Config getConfig() {
         return config;
+    }
+
+    public Properties getProperties() {
+        return props;
     }
 
     public ServiceInfoEmitter getServiceInfoEmitter() {
@@ -135,45 +128,23 @@ public class Framework {
         logThread.logFatal(message, cause);
     }
 
-    public void exit() {
-        if (exiting.compareAndSet(false, true)) {
-            new Thread() {
-                {
-                    setDaemon(true);
-                }
-
-                public void run() {
-                    Util.sleepMillis(100); // give loggers a chance
-                    System.exit(-1);
-                }
-            }.start();
-        }
-    }
-
-    private class UncaughtExceptionHook implements UncaughtExceptionHandler {
-        @Override
-        public void uncaughtException(Thread thread, Throwable cause) {
-            logFatal("Uncaught exception", cause);
-            exit();
-        }
-    }
-
-    private class ShutdownHook extends Thread {
-        @Override
-        public void run() {
-            logInfo("Ending");
+    public void stop() {
+        if (stopped.compareAndSet(false, true)) {
             if (serviceInfoEmitter != null)
                 serviceInfoEmitter.die();
+            if (processor != null)
+                processor.die();
             if (serviceFinder != null) {
                 try {
                     serviceFinder.die();
                 } catch (Throwable th) {
                 }
             }
-            if (processor != null)
-                processor.logRunningStats();
-            logInfo("Ended");
-            Util.sleepMillis(100);
+            if (serviceUdp != null)
+                serviceUdp.die();
+            logInfo("Stopped");
+            if (logThread != null)
+                logThread.die();
         }
     }
 }

@@ -17,6 +17,7 @@
 package com.noqms.framework;
 
 import java.util.ArrayDeque;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.noqms.MicroService;
 
@@ -28,6 +29,7 @@ public class RequestToMeThread extends Thread {
     private final ArrayDeque<Request> requestsToMe;
     private final Framework framework;
     private final MicroService microservice;
+    private final AtomicBoolean die = new AtomicBoolean();
 
     public static class Request {
         public final Long requestId;
@@ -50,8 +52,15 @@ public class RequestToMeThread extends Thread {
         setDaemon(true);
     }
 
+    public void die() {
+        die.set(true);
+        synchronized (requestsToMe) {
+            requestsToMe.notifyAll();
+        }
+    }
+
     public void run() {
-        while (true) {
+        while (!die.get()) {
             Request request = null;
             synchronized (requestsToMe) {
                 request = requestsToMe.pollFirst();

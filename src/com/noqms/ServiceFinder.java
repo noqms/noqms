@@ -17,6 +17,7 @@
 package com.noqms;
 
 import java.net.InetAddress;
+import java.util.Properties;
 
 /**
  * Pluggable service finder. The method and means for microservices to find each other may vary from one platform to the
@@ -29,6 +30,7 @@ import java.net.InetAddress;
 public class ServiceFinder {
     protected final String groupName;
     protected final LogListener logger;
+    protected final Properties props;
 
     /**
      * Provide a constructor as shown below.
@@ -36,9 +38,10 @@ public class ServiceFinder {
      * @param groupName the microservice group
      * @param logger    the logger
      */
-    public ServiceFinder(String groupName, LogListener logger) {
+    public ServiceFinder(String groupName, LogListener logger, Properties props) {
         this.groupName = groupName;
         this.logger = logger;
+        this.props = props;
     }
 
     /**
@@ -48,7 +51,7 @@ public class ServiceFinder {
     }
 
     /**
-     * Kill the process, if any, involved with service finding. The program is terminating.
+     * Kill the process, if any, involved with service finding. The microservice is terminating.
      */
     public void die() {
     }

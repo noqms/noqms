@@ -36,6 +36,7 @@ public class ServiceInfoEmitter extends Thread {
 
     public void die() {
         die.set(true);
+        unpause();
     }
 
     public boolean pause() {
@@ -70,6 +71,8 @@ public class ServiceInfoEmitter extends Thread {
                     }
                 }
             }
+            if (die.get())
+                break;
             try {
                 InetAddress myAddress = Util.findMyInetAddress();
                 framework.getServiceFinder().sendMyServiceInfo(myServiceName, myAddress, myPort, myTimeoutMillis);

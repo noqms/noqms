@@ -20,6 +20,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.google.gson.Gson;
 
@@ -36,6 +37,7 @@ public class ServiceUdp extends Thread {
     private final int receivePort;
     private final byte[] receiveData;
     private final Gson gson = new Gson();
+    private final AtomicBoolean die = new AtomicBoolean();
 
     public ServiceUdp(Framework framework) throws Exception {
         this.framework = framework;
@@ -44,13 +46,20 @@ public class ServiceUdp extends Thread {
 
         datagramSocket = new DatagramSocket(config.dataPort);
         datagramSocket.setSoTimeout(0);
-        datagramSocket.setReceiveBufferSize(UDP_BUFFER_CAPACITY_MESSAGES * (MessageHeader.MAX_BYTES + config.maxMessageInBytes));
-        datagramSocket.setSendBufferSize(UDP_BUFFER_CAPACITY_MESSAGES * (MessageHeader.MAX_BYTES + config.maxMessageOutBytes));
+        datagramSocket.setReceiveBufferSize(
+                UDP_BUFFER_CAPACITY_MESSAGES * (MessageHeader.MAX_BYTES + config.maxMessageInBytes));
+        datagramSocket.setSendBufferSize(
+                UDP_BUFFER_CAPACITY_MESSAGES * (MessageHeader.MAX_BYTES + config.maxMessageOutBytes));
 
         receivePort = datagramSocket.getLocalPort();
         receiveData = new byte[MessageHeader.MAX_BYTES + config.maxMessageInBytes];
 
         setDaemon(true);
+    }
+
+    public void die() {
+        die.set(true);
+        datagramSocket.close();
     }
 
     public int getReceivePort() {
@@ -59,7 +68,7 @@ public class ServiceUdp extends Thread {
 
     @Override
     public void run() {
-        while (true) {
+        while (!die.get()) {
             DatagramPacket packet = new DatagramPacket(receiveData, receiveData.length);
 
             try {
@@ -143,8 +152,8 @@ public class ServiceUdp extends Thread {
         byte[] headerBytes = gson.toJson(header).getBytes(StandardCharsets.UTF_8);
         int headerLength = headerBytes.length;
         if (headerLength > MessageHeader.MAX_BYTES) {
-            framework.logError("Sent header length exceeds maximum: " + headerLength + " > "
-                    + MessageHeader.MAX_BYTES, null);
+            framework.logError("Sent header length exceeds maximum: " + headerLength + " > " + MessageHeader.MAX_BYTES,
+                    null);
             return false;
         }
 
@@ -161,7 +170,7 @@ public class ServiceUdp extends Thread {
             framework.logError("Error sending service packet", ex);
             return false;
         }
-        
+
         return true;
     }
 }

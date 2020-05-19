@@ -55,6 +55,13 @@ public class LogThread extends Thread implements LogListener {
         addEntry(Level.FATAL, text, cause);
     }
 
+    public void die() {
+        synchronized (logEntries) {
+            logEntries.addLast(new LogEntry(null, null, null));
+            logEntries.notify();
+        }
+    }
+
     private void addEntry(Level level, String text, Throwable cause) {
         synchronized (logEntries) {
             logEntries.addLast(new LogEntry(level, text, cause));
@@ -75,13 +82,15 @@ public class LogThread extends Thread implements LogListener {
                 }
             }
             if (logEntry != null) {
+                if (logEntry.level == null)
+                    break;
                 Throwable cause = logEntry.cause;
                 String causeMessage = cause == null ? "" : (": " + cause.toString());
-                String text = "Noqms: " + serviceName + ": " + logEntry.text + causeMessage;
+                String text = "Noqms: " + serviceName + ": " + logEntry.text;
                 if (otherLogger == null && logEntry.level == Level.INFO)
-                    System.out.println(text);
+                    System.out.println(text + causeMessage);
                 if (logEntry.level != Level.INFO)
-                    System.err.println(text);
+                    System.err.println(text + causeMessage);
                 if (cause != null)
                     cause.printStackTrace();
                 if (otherLogger != null) {
@@ -101,7 +110,7 @@ public class LogThread extends Thread implements LogListener {
                             break;
                         }
                     } catch (Exception ex) {
-                        System.err.println("your logger threw an exception: " + ex.toString());
+                        System.err.println("Your logger threw an exception: " + ex.getMessage());
                     }
                 }
             }

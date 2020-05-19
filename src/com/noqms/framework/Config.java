@@ -42,7 +42,6 @@ public class Config {
     public final int emitterIntervalMillis;
     public final int serviceUnavailableMillis;
     public final String serviceFinderPath;
-    public final String logListenerPath;
     public final int dataPort;
 
     public static Config createFromProperties(Properties props) throws Exception {
@@ -59,7 +58,6 @@ public class Config {
         int serviceUnavailableSeconds = loadInt(props, Runner.ARG_SERVICE_UNAVAILABLE_SECONDS,
                 DEFAULT_SERVICE_UNAVAILABLE_SECONDS);
         String serviceFinderPath = loadString(props, Runner.ARG_SERVICE_FINDER_PATH, DEFAULT_SERVICE_FINDER_PATH);
-        String logListenerPath = loadString(props, Runner.ARG_LOG_LISTENER_PATH, "");
         int dataPort = loadInt(props, Runner.ARG_DATA_PORT, 0);
 
         if (threads <= 0)
@@ -94,12 +92,12 @@ public class Config {
 
         return new Config(threads, timeoutMillis, serviceName, servicePath, maxMessageOutBytes, maxMessageInBytes,
                 typicalMillis, groupName, emitterIntervalSeconds, serviceUnavailableSeconds, serviceFinderPath,
-                logListenerPath, dataPort);
+                dataPort);
     }
 
     private Config(int threads, int timeoutMillis, String serviceName, String servicePath, int maxMessageOutBytes,
             int maxMessageInBytes, int typicalMillis, String groupName, int emitterIntervalSeconds,
-            int serviceUnavailableSeconds, String serviceFinderPath, String logListenerPath, Integer dataPort) {
+            int serviceUnavailableSeconds, String serviceFinderPath, Integer dataPort) {
         this.threads = threads;
         this.timeoutMillis = timeoutMillis;
         this.serviceName = serviceName;
@@ -111,7 +109,6 @@ public class Config {
         this.emitterIntervalMillis = 1000 * emitterIntervalSeconds;
         this.serviceUnavailableMillis = 1000 * serviceUnavailableSeconds;
         this.serviceFinderPath = serviceFinderPath;
-        this.logListenerPath = logListenerPath;
         this.dataPort = dataPort;
     }
 

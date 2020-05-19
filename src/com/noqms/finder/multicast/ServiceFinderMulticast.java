@@ -21,7 +21,9 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.google.gson.Gson;
 import com.noqms.LogListener;
@@ -45,9 +47,10 @@ public class ServiceFinderMulticast extends ServiceFinder {
     private final Map<String, ServiceInstance> serviceNameToService = new ConcurrentHashMap<>();
     private final InetAddress multicastAddress;
     private final int multicastPort;
+    private final AtomicBoolean die = new AtomicBoolean();
 
-    public ServiceFinderMulticast(String groupName, LogListener logger) throws Exception {
-        super(groupName, logger);
+    public ServiceFinderMulticast(String groupName, LogListener logger, Properties props) throws Exception {
+        super(groupName, logger, props);
 
         multicastAddress = InetAddress.getByName(MULTICAST_ADDRESS);
 
@@ -72,7 +75,8 @@ public class ServiceFinderMulticast extends ServiceFinder {
 
     @Override
     public void die() {
-        // The thread is a daemon, nothing to do here.
+        die.set(true);
+        multicastSocket.close();
     }
 
     private class ReadThread extends Thread {
@@ -82,7 +86,7 @@ public class ServiceFinderMulticast extends ServiceFinder {
 
         @Override
         public void run() {
-            while (true) {
+            while (!die.get()) {
                 DatagramPacket packet = new DatagramPacket(receiveData, receiveData.length);
                 try {
                     multicastSocket.receive(packet); // blocking

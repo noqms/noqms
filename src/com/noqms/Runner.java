@@ -50,7 +50,6 @@ public class Runner {
     public static final String ARG_EMITTER_INTERVAL_SECONDS = "emitterIntervalSeconds";
     public static final String ARG_SERVICE_UNAVAILABLE_SECONDS = "serviceUnavailableSeconds";
     public static final String ARG_SERVICE_FINDER_PATH = "serviceFinderPath";
-    public static final String ARG_LOG_LISTENER_PATH = "logListenerPath";
     public static final String ARG_DATA_PORT = "dataPort";
 
     /**
@@ -93,9 +92,6 @@ public class Runner {
      * @param serviceFinderPath         default="com.noqms.finder.multicast.ServiceFinderMulticast" - the full path of a
      *                                  pluggable microservice discovery mechanism - can be anywhere on your classpath
      * 
-     * @param logListenerPath           the full path of an optional listener for external log message processing - can
-     *                                  be anywhere on your classpath
-     * 
      * @param dataPort                  default=any available - UDP port this service reads for incoming microservice
      *                                  application data
      */
@@ -104,18 +100,45 @@ public class Runner {
         try {
             props = Util.argsToProps(args);
         } catch (Exception ex) {
-            System.err.println("Noqms: error parsing command line arguments: " + ex.getMessage());
+            System.err.println("Noqms: Error parsing command line arguments: " + ex.getMessage());
             return;
         }
-        start(props);
+        try {
+            start(props);
+        } catch (Exception ex) {
+            System.err.println("Noqms: " + ex.getMessage());
+            return;
+        }
         Util.sleepMillis(Integer.MAX_VALUE);
     }
 
     /**
+     * Start a microservice.
+     * 
      * @param props key/value pairs - see {@link Runner#main main} for names and descriptions
      * @return an instance of the microservice at servicePath
      */
-    public static MicroService start(Properties props) {
-        return new Framework().start(props);
+    public static MicroService start(Properties props) throws Exception {
+        return new Framework().start(props, null);
+    }
+
+    /**
+     * Start a microservice.
+     * 
+     * @param props       key/value pairs - see {@link Runner#main main} for names and descriptions
+     * @param logListener optional log listener
+     * @return an instance of the microservice at servicePath
+     */
+    public static MicroService start(Properties props, LogListener logListener) throws Exception {
+        return new Framework().start(props, logListener);
+    }
+
+    /**
+     * Shut down the microservice.
+     * 
+     * @param microService   reference to the microservice to stop
+     */
+    public static void stop(MicroService microService) {
+        microService.stop();
     }
 }

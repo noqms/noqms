@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.DelayQueue;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -56,6 +57,7 @@ public class Processor extends Thread {
     private final DelayQueue<ExpiringId> expiringRequestsToMe = new DelayQueue<>();
     private final Gson gson = new Gson();
     private final PerMinuteStats perMinuteStats = new PerMinuteStats();
+    private final AtomicBoolean die = new AtomicBoolean();
 
     public Processor(Framework framework) throws Exception {
         this.framework = framework;
@@ -83,8 +85,11 @@ public class Processor extends Thread {
         return microService;
     }
 
-    public void logRunningStats() {
+    public void die() {
         framework.logInfo("RunningStats=" + new RunningStats().get());
+        die.set(true);
+        for (RequestToMeThread requestToMeThread : requestToMeThreads)
+            requestToMeThread.die();
     }
 
     // Deal with the data and return quickly.
@@ -113,7 +118,8 @@ public class Processor extends Thread {
         }
         if (service.elapsedMillis > framework.getConfig().serviceUnavailableMillis) {
             perMinuteStats.failedRequests.incrementAndGet();
-            framework.logWarn("The sendRequestExpectResponse() serviceNameTo service is not responsive: " + serviceNameTo);
+            framework.logWarn(
+                    "The sendRequestExpectResponse() serviceNameTo service is not responsive: " + serviceNameTo);
             return new ResponseFuture(RequestStatus.ServiceNotResponsive);
         }
         MessageHeader header = new MessageHeader();
@@ -174,7 +180,7 @@ public class Processor extends Thread {
     public void run() {
         long lastStatsReportTimeMillis = System.currentTimeMillis();
 
-        while (true) {
+        while (!die.get()) {
             int requestsToMeBacklog = getRequestsToMeBacklog();
             int backPressureThreshold = 1
                     + (int)(config.threads * ((float)config.timeoutMillis / config.typicalMillis));

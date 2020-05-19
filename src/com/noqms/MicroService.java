@@ -107,4 +107,8 @@ public class MicroService {
             throw new IllegalArgumentException("Parameter data length must be no greater than " + MAX_DATA_LENGTH);
         return framework.getProcessor().sendRequestExpectResponse(serviceNameTo, data);
     }
+    
+    public void stop() {
+        framework.stop();
+    }
 }
