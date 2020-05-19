@@ -87,13 +87,14 @@ public class LogThread extends Thread implements LogListener {
                 Throwable cause = logEntry.cause;
                 String causeMessage = cause == null ? "" : (": " + cause.toString());
                 String text = "Noqms: " + serviceName + ": " + logEntry.text;
-                if (otherLogger == null && logEntry.level == Level.INFO)
-                    System.out.println(text + causeMessage);
-                if (logEntry.level != Level.INFO)
-                    System.err.println(text + causeMessage);
-                if (cause != null)
-                    cause.printStackTrace();
-                if (otherLogger != null) {
+                if (otherLogger == null) {
+                    if (logEntry.level == Level.INFO)
+                        System.out.println(text + causeMessage);
+                    else
+                        System.err.println(text + causeMessage);
+                    if (cause != null)
+                        cause.printStackTrace();
+                } else {
                     try {
                         switch (logEntry.level) {
                         case INFO:
@@ -103,10 +104,10 @@ public class LogThread extends Thread implements LogListener {
                             otherLogger.logWarn(text);
                             break;
                         case ERROR:
-                            otherLogger.logError(text, logEntry.cause);
+                            otherLogger.logError(text, cause);
                             break;
                         case FATAL:
-                            otherLogger.logFatal(text, logEntry.cause);
+                            otherLogger.logFatal(text, cause);
                             break;
                         }
                     } catch (Exception ex) {

@@ -91,7 +91,8 @@ public class ServiceFinderMulticast extends ServiceFinder {
                 try {
                     multicastSocket.receive(packet); // blocking
                 } catch (Exception ex) {
-                    logger.logError("Error receiving service finder multicast packet", ex);
+                    if (!die.get())
+                        logger.logError("Error receiving service finder multicast packet", ex);
                     continue;
                 }
 

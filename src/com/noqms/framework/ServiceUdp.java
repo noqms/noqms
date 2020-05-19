@@ -74,7 +74,8 @@ public class ServiceUdp extends Thread {
             try {
                 datagramSocket.receive(packet); // blocking
             } catch (Exception ex) {
-                framework.logError("Error receiving service packet", ex);
+                if (!die.get())
+                    framework.logError("Error receiving service packet", ex);
                 continue;
             }
 

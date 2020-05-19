@@ -37,7 +37,7 @@ public class Framework {
     private Processor processor;
     private ServiceFinder serviceFinder;
     private ServiceUdp serviceUdp;
-    private AtomicBoolean stopped;
+    private final AtomicBoolean stopped = new AtomicBoolean();
 
     public MicroService start(Properties props, LogListener logListener) throws Exception {
         if (props == null)
