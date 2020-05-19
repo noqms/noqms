@@ -16,6 +16,7 @@
 
 module com.noqms {
     requires gson;
+    requires transitive java.sql; // for gson until https://github.com/google/gson/pull/1500 kicks in
     
     opens com.noqms.framework to gson;
     opens com.noqms.finder.multicast to gson;
