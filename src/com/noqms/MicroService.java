@@ -113,14 +113,16 @@ public class MicroService {
     }
 
     /**
-     * Drain the microservice prior to stopping. Takes config emitterIntervalMillis to complete.
+     * Drain the microservice prior to stopping. Takes config emitterIntervalMillis to complete. Override this to
+     * implement your own drain, but make sure to also call this super first.
      */
     public void drain() {
         framework.drain();
     }
 
     /**
-     * Stop the microservice. For a cleaner stop, drain beforehand.
+     * Stop the microservice. For a cleaner stop, drain beforehand. Override this to implement your own stop, but make
+     * sure to also call this super first.
      */
     public void stop() {
         framework.stop();

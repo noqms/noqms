@@ -73,7 +73,9 @@ public class RequestToMeThread extends Thread {
             }
             if (request != null) {
                 try {
+                    long startTimeMillis = System.currentTimeMillis();
                     microservice.processRequest(request.requestId, request.serviceNameFrom, request.data);
+                    framework.getProcessor().processRequestMillis((int)(System.currentTimeMillis() - startTimeMillis));
                 } catch (Throwable th) {
                     framework.logError("Your microservice threw an exception in processRequest()", th);
                 }

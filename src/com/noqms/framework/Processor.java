@@ -416,6 +416,10 @@ public class Processor extends Thread {
         }
     }
 
+    public void processRequestMillis(int millis) {
+        perMinuteStats.processRequestMillis(millis);
+    }
+
     @SuppressWarnings("unused")
     private class PerMinuteStats {
         private int requestsSent;
@@ -425,6 +429,8 @@ public class Processor extends Thread {
         private int responsesDroppedByMe;
         private int responsesDroppedByOthers;
         private boolean backPressureApplied;
+        private int processRequestLowMillis;
+        private int processRequestHighMillis;
         private final AtomicInteger failedRequests = new AtomicInteger();
         private final AtomicInteger failedResponses = new AtomicInteger();
 
@@ -436,14 +442,25 @@ public class Processor extends Thread {
             responsesDroppedByMe = 0;
             responsesDroppedByOthers = 0;
             backPressureApplied = false;
+            processRequestLowMillis = 0;
+            processRequestHighMillis = 0;
             failedRequests.set(0);
             failedResponses.set(0);
         }
 
-        private String getAndReset() {
+        private synchronized String getAndReset() {
             String ret = gson.toJson(this);
             clear();
             return ret;
+        }
+
+        private synchronized void processRequestMillis(int millis) {
+            if (millis == 0)
+                millis = 1;
+            if (processRequestLowMillis == 0 || millis < processRequestLowMillis)
+                processRequestLowMillis = millis;
+            if (millis > processRequestHighMillis)
+                processRequestHighMillis = millis;
         }
     }
 }
