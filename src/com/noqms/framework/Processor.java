@@ -106,9 +106,9 @@ public class Processor extends Thread {
         ServiceInfo service = null;
         try {
             service = framework.getServiceFinder().findService(serviceNameTo);
-        } catch (Exception ex) {
+        } catch (Throwable th) {
             perMinuteStats.failedRequests.incrementAndGet();
-            framework.logError("The pluggable service finder threw an exception in findService()", ex);
+            framework.logError("The pluggable service finder threw an exception in findService()", th);
             return new ResponseFuture(RequestStatus.ServiceNotFound);
         }
         if (service == null) {
@@ -137,9 +137,9 @@ public class Processor extends Thread {
         ServiceInfo service = null;
         try {
             service = framework.getServiceFinder().findService(serviceNameTo);
-        } catch (Exception ex) {
+        } catch (Throwable th) {
             perMinuteStats.failedRequests.incrementAndGet();
-            framework.logError("The pluggable service finder threw an exception in findService()", ex);
+            framework.logError("The pluggable service finder threw an exception in findService()", th);
             return RequestStatus.ServiceNotFound;
         }
         if (service == null) {

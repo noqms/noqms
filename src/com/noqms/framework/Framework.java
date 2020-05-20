@@ -50,7 +50,7 @@ public class Framework {
             if (logListener != null)
                 logListener.logFatal("Config exception: " + ex.getMessage(), null);
             else
-                System.err.println("Noqms: Start exception: " + ex.getMessage());
+                System.err.println("Noqms: Config exception: " + ex.getMessage());
             throw ex;
         }
 
@@ -73,9 +73,9 @@ public class Framework {
 
             processor = new Processor(this);
             processor.start();
-        } catch (Exception ex) {
-            logFatal("Start exception", ex);
-            throw ex;
+        } catch (Throwable th) {
+            logFatal("Start exception", th);
+            throw new Exception("Start exception", th);
         }
 
         serviceInfoEmitter.start();
@@ -126,6 +126,14 @@ public class Framework {
 
     public void logFatal(String message, Throwable cause) {
         logThread.logFatal(message, cause);
+    }
+
+    public void drain() {
+        logInfo("Draining");
+        if (serviceInfoEmitter != null)
+            serviceInfoEmitter.die();
+        Util.sleepMillis(config.emitterIntervalMillis);
+        logInfo("Drained");
     }
 
     public void stop() {

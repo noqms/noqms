@@ -107,7 +107,7 @@ public class Runner {
             start(props);
         } catch (Exception ex) {
             System.err.println("Noqms: " + ex.getMessage());
-            return;
+            System.exit(-1);
         }
         Util.sleepMillis(Integer.MAX_VALUE);
     }
@@ -131,14 +131,5 @@ public class Runner {
      */
     public static MicroService start(Properties props, LogListener logListener) throws Exception {
         return new Framework().start(props, logListener);
-    }
-
-    /**
-     * Shut down the microservice.
-     * 
-     * @param microService   reference to the microservice to stop
-     */
-    public static void stop(MicroService microService) {
-        microService.stop();
     }
 }

@@ -76,8 +76,8 @@ public class ServiceInfoEmitter extends Thread {
             try {
                 InetAddress myAddress = Util.findMyInetAddress();
                 framework.getServiceFinder().sendMyServiceInfo(myServiceName, myAddress, myPort, myTimeoutMillis);
-            } catch (Exception ex) {
-                framework.logError("Pluggable service finder threw an exception in sendMyServiceInfo()", ex);
+            } catch (Throwable th) {
+                framework.logError("Pluggable service finder threw an exception in sendMyServiceInfo()", th);
             }
             // Introduce jitter for better distribution when a low number of a given unique microservice exists
             int sleepMillis = intervalMillis - intervalHalfWindowMillis + random.nextInt(2 * intervalHalfWindowMillis);

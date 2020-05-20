@@ -64,9 +64,11 @@ public class MicroService {
         if (requestId == null || requestId <= 0)
             throw new IllegalArgumentException("Parameter requestId must be positive");
         if (userMessage != null && userMessage.length() > MAX_STRING_LENGTH)
-            throw new IllegalArgumentException("Parameter userMessage length must be no greater than " + MAX_STRING_LENGTH);
+            throw new IllegalArgumentException(
+                    "Parameter userMessage length must be no greater than " + MAX_STRING_LENGTH);
         if (nerdDetail != null && nerdDetail.length() > MAX_STRING_LENGTH)
-            throw new IllegalArgumentException("Parameter nerdDetail length must be no greater than " + MAX_STRING_LENGTH);
+            throw new IllegalArgumentException(
+                    "Parameter nerdDetail length must be no greater than " + MAX_STRING_LENGTH);
         if (data != null && data.length > MAX_DATA_LENGTH)
             throw new IllegalArgumentException("Parameter data length must be no greater than " + MAX_DATA_LENGTH);
         framework.getProcessor().sendResponse(requestId, code, userMessage, nerdDetail, data);
@@ -83,7 +85,8 @@ public class MicroService {
         if (serviceNameTo == null || serviceNameTo.isBlank())
             throw new IllegalArgumentException("Parameter serviceNameTo is required");
         if (serviceNameTo.length() > MAX_STRING_LENGTH)
-            throw new IllegalArgumentException("Parameter serviceNameTo length must be no greater than " + MAX_STRING_LENGTH);
+            throw new IllegalArgumentException(
+                    "Parameter serviceNameTo length must be no greater than " + MAX_STRING_LENGTH);
         if (data != null && data.length > MAX_DATA_LENGTH)
             throw new IllegalArgumentException("Parameter data length must be no greater than " + MAX_DATA_LENGTH);
         return framework.getProcessor().sendRequest(serviceNameTo, data);
@@ -102,12 +105,23 @@ public class MicroService {
         if (serviceNameTo == null || serviceNameTo.isBlank())
             throw new IllegalArgumentException("Parameter serviceNameTo is required");
         if (serviceNameTo.length() > MAX_STRING_LENGTH)
-            throw new IllegalArgumentException("Parameter serviceNameTo length must be no greater than " + MAX_STRING_LENGTH);
+            throw new IllegalArgumentException(
+                    "Parameter serviceNameTo length must be no greater than " + MAX_STRING_LENGTH);
         if (data != null && data.length > MAX_DATA_LENGTH)
             throw new IllegalArgumentException("Parameter data length must be no greater than " + MAX_DATA_LENGTH);
         return framework.getProcessor().sendRequestExpectResponse(serviceNameTo, data);
     }
-    
+
+    /**
+     * Drain the microservice prior to stopping. Takes config emitterIntervalMillis to complete.
+     */
+    public void drain() {
+        framework.drain();
+    }
+
+    /**
+     * Stop the microservice. For a cleaner stop, drain beforehand.
+     */
     public void stop() {
         framework.stop();
     }
