@@ -27,7 +27,7 @@ import com.noqms.MicroService;
  */
 public class RequestToMeThread extends Thread {
     private final ArrayDeque<Request> requestsToMe;
-    private final Framework framework;
+    private final Harness harness;
     private final MicroService microservice;
     private final AtomicBoolean die = new AtomicBoolean();
 
@@ -43,10 +43,10 @@ public class RequestToMeThread extends Thread {
         }
     }
 
-    public RequestToMeThread(String name, Framework framework, ArrayDeque<Request> requestsToMe,
+    public RequestToMeThread(String name, Harness harness, ArrayDeque<Request> requestsToMe,
             MicroService microservice) {
         this.requestsToMe = requestsToMe;
-        this.framework = framework;
+        this.harness = harness;
         this.microservice = microservice;
         setName(name);
         setDaemon(true);
@@ -75,9 +75,9 @@ public class RequestToMeThread extends Thread {
                 try {
                     long startTimeMillis = System.currentTimeMillis();
                     microservice.processRequest(request.requestId, request.serviceNameFrom, request.data);
-                    framework.getProcessor().processRequestMillis((int)(System.currentTimeMillis() - startTimeMillis));
+                    harness.getProcessor().processRequestMillis((int)(System.currentTimeMillis() - startTimeMillis));
                 } catch (Throwable th) {
-                    framework.logError("Your microservice threw an exception in processRequest()", th);
+                    harness.logError("Your microservice threw an exception in processRequest()", th);
                 }
             }
         }

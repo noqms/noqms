@@ -29,7 +29,7 @@ import com.noqms.ServiceFinder;
  * @author Stanley Barzee
  * @since 1.0.0
  */
-public class Framework {
+public class Harness {
     private LogThread logThread;
     private Config config;
     private Properties props;

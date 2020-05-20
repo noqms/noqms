@@ -16,7 +16,7 @@
 
 package com.noqms;
 
-import com.noqms.framework.Framework;
+import com.noqms.framework.Harness;
 
 /**
  * Extend this class and implement the request/response details of your microservice in processRequest(). Call
@@ -30,14 +30,14 @@ public class MicroService {
     public static final int MAX_STRING_LENGTH = 100;
     public static final int MAX_DATA_LENGTH = 64000;
 
-    private Framework framework;
+    private Harness harness;
 
     /*
      * Utilized by the framework alone to set the handler for the methods.
      */
     @SuppressWarnings("exports")
-    public void setFramework(Framework framework) {
-        this.framework = framework;
+    public void setHarness(Harness harness) {
+        this.harness = harness;
     }
 
     /**
@@ -48,7 +48,7 @@ public class MicroService {
      * @param data            application and microservice specific message data
      */
     public void processRequest(Long requestId, String serviceNameFrom, byte[] data) {
-        framework.logError("A request was received to an unimplemented processRequest()", null);
+        harness.logError("A request was received to an unimplemented processRequest()", null);
     }
 
     /**
@@ -71,7 +71,7 @@ public class MicroService {
                     "Parameter nerdDetail length must be no greater than " + MAX_STRING_LENGTH);
         if (data != null && data.length > MAX_DATA_LENGTH)
             throw new IllegalArgumentException("Parameter data length must be no greater than " + MAX_DATA_LENGTH);
-        framework.getProcessor().sendResponse(requestId, code, userMessage, nerdDetail, data);
+        harness.getProcessor().sendResponse(requestId, code, userMessage, nerdDetail, data);
     }
 
     /**
@@ -89,7 +89,7 @@ public class MicroService {
                     "Parameter serviceNameTo length must be no greater than " + MAX_STRING_LENGTH);
         if (data != null && data.length > MAX_DATA_LENGTH)
             throw new IllegalArgumentException("Parameter data length must be no greater than " + MAX_DATA_LENGTH);
-        return framework.getProcessor().sendRequest(serviceNameTo, data);
+        return harness.getProcessor().sendRequest(serviceNameTo, data);
     }
 
     /**
@@ -109,7 +109,7 @@ public class MicroService {
                     "Parameter serviceNameTo length must be no greater than " + MAX_STRING_LENGTH);
         if (data != null && data.length > MAX_DATA_LENGTH)
             throw new IllegalArgumentException("Parameter data length must be no greater than " + MAX_DATA_LENGTH);
-        return framework.getProcessor().sendRequestExpectResponse(serviceNameTo, data);
+        return harness.getProcessor().sendRequestExpectResponse(serviceNameTo, data);
     }
 
     /**
@@ -117,7 +117,7 @@ public class MicroService {
      * implement your own drain, but make sure to also call this super first.
      */
     public void drain() {
-        framework.drain();
+        harness.drain();
     }
 
     /**
@@ -125,6 +125,6 @@ public class MicroService {
      * sure to also call this super first.
      */
     public void stop() {
-        framework.stop();
+        harness.stop();
     }
 }

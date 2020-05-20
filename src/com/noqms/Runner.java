@@ -18,7 +18,7 @@ package com.noqms;
 
 import java.util.Properties;
 
-import com.noqms.framework.Framework;
+import com.noqms.framework.Harness;
 import com.noqms.framework.Util;
 
 /**
@@ -119,7 +119,7 @@ public class Runner {
      * @return an instance of the microservice at servicePath
      */
     public static MicroService start(Properties props) throws Exception {
-        return new Framework().start(props, null);
+        return new Harness().start(props, null);
     }
 
     /**
@@ -130,6 +130,6 @@ public class Runner {
      * @return an instance of the microservice at servicePath
      */
     public static MicroService start(Properties props, LogListener logListener) throws Exception {
-        return new Framework().start(props, logListener);
+        return new Harness().start(props, logListener);
     }
 }

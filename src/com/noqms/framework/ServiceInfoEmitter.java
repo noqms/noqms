@@ -25,12 +25,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @since 1.0.0
  */
 public class ServiceInfoEmitter extends Thread {
-    private final Framework framework;
+    private final Harness harness;
     private final AtomicBoolean die = new AtomicBoolean();
     private final AtomicBoolean pause = new AtomicBoolean();
 
-    public ServiceInfoEmitter(Framework framework) {
-        this.framework = framework;
+    public ServiceInfoEmitter(Harness harness) {
+        this.harness = harness;
         setDaemon(true);
     }
 
@@ -54,11 +54,11 @@ public class ServiceInfoEmitter extends Thread {
 
     @Override
     public void run() {
-        Config config = framework.getConfig();
+        Config config = harness.getConfig();
         String myServiceName = config.serviceName;
-        int myPort = framework.getServiceUdp().getReceivePort();
+        int myPort = harness.getServiceUdp().getReceivePort();
         int myTimeoutMillis = config.timeoutMillis;
-        int intervalMillis = framework.getConfig().emitterIntervalMillis;
+        int intervalMillis = harness.getConfig().emitterIntervalMillis;
         int intervalHalfWindowMillis = intervalMillis / 5;
         Random random = new Random();
 
@@ -75,9 +75,9 @@ public class ServiceInfoEmitter extends Thread {
                 break;
             try {
                 InetAddress myAddress = Util.findMyInetAddress();
-                framework.getServiceFinder().sendMyServiceInfo(myServiceName, myAddress, myPort, myTimeoutMillis);
+                harness.getServiceFinder().sendMyServiceInfo(myServiceName, myAddress, myPort, myTimeoutMillis);
             } catch (Throwable th) {
-                framework.logError("Pluggable service finder threw an exception in sendMyServiceInfo()", th);
+                harness.logError("Pluggable service finder threw an exception in sendMyServiceInfo()", th);
             }
             // Introduce jitter for better distribution when a low number of a given unique microservice exists
             int sleepMillis = intervalMillis - intervalHalfWindowMillis + random.nextInt(2 * intervalHalfWindowMillis);
