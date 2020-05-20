@@ -405,11 +405,13 @@ public class Processor extends Thread {
         private int requestsToMeBacklog;
         private long memoryUsedMB;
         private int memoryUsedPercent;
+        private int threadCount;
 
         private String get() {
             requestsToMeBacklog = getRequestsToMeBacklog();
             memoryUsedMB = Util.getMemoryUsedMB();
             memoryUsedPercent = Util.getMemoryUsedPercent();
+            threadCount = Thread.activeCount();
             return gson.toJson(this);
         }
     }
