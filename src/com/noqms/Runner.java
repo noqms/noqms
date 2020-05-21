@@ -119,7 +119,7 @@ public class Runner {
      * Start a microservice.
      * 
      * @param props key/value pairs - see {@link Runner#main main} for names and descriptions
-     * @return an instance of the microservice at servicePath
+     * @return an instance of the microservice at noqms.servicePath
      */
     public static MicroService start(Properties props) throws Exception {
         return new Harness().start(props, null);
@@ -130,7 +130,7 @@ public class Runner {
      * 
      * @param props       key/value pairs - see {@link Runner#main main} for names and descriptions
      * @param logListener optional log listener
-     * @return an instance of the microservice at servicePath
+     * @return an instance of the microservice at noqms.servicePath
      */
     public static MicroService start(Properties props, LogListener logListener) throws Exception {
         return new Harness().start(props, logListener);
