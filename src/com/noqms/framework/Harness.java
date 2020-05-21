@@ -30,7 +30,7 @@ import com.noqms.ServiceFinder;
  * @since 1.0.0
  */
 public class Harness {
-    private LogThread logThread;
+    private Logger logger;
     private Config config;
     private Properties props;
     private ServiceInfoEmitter serviceInfoEmitter;
@@ -39,7 +39,7 @@ public class Harness {
     private ServiceUdp serviceUdp;
     private final AtomicBoolean stopped = new AtomicBoolean();
 
-    public MicroService start(Properties props, LogListener logListener) throws Exception {
+    public MicroService start(Properties props, LogListener otherLogger) throws Exception {
         if (props == null)
             throw new IllegalArgumentException("Start properties must be given");
         this.props = props;
@@ -47,16 +47,15 @@ public class Harness {
         try {
             config = Config.createFromProperties(props);
         } catch (Exception ex) {
-            if (logListener != null)
-                logListener.logFatal("Config exception: " + ex.getMessage(), null);
+            if (otherLogger != null)
+                otherLogger.logFatal("Config exception: " + ex.getMessage(), null);
             else
                 System.err.println("Noqms: Config exception: " + ex.getMessage());
             throw ex;
         }
 
-        logThread = new LogThread(config.serviceName, logListener);
-        logThread.start();
-        logInfo("Starting: " + props);
+        logger = new Logger(config.serviceName, otherLogger);
+        logger.logInfo("Starting: " + props);
 
         serviceInfoEmitter = new ServiceInfoEmitter(this);
         InetAddress myInetAddress = null;
@@ -68,7 +67,7 @@ public class Harness {
 
             Class<?> objectClass = Class.forName(config.serviceFinderPath);
             Constructor<?> constructor = objectClass.getConstructor(String.class, LogListener.class, Properties.class);
-            serviceFinder = (ServiceFinder)constructor.newInstance(config.groupName, logThread, props);
+            serviceFinder = (ServiceFinder)constructor.newInstance(config.groupName, logger, props);
             serviceFinder.start();
 
             processor = new Processor(this);
@@ -95,6 +94,10 @@ public class Harness {
     public Properties getProperties() {
         return props;
     }
+    
+    public LogListener getLogger() {
+        return logger;
+    }
 
     public ServiceInfoEmitter getServiceInfoEmitter() {
         return serviceInfoEmitter;
@@ -113,19 +116,19 @@ public class Harness {
     }
 
     public void logInfo(String message) {
-        logThread.logInfo(message);
+        logger.logInfo(message);
     }
 
     public void logWarn(String message) {
-        logThread.logWarn(message);
+        logger.logWarn(message);
     }
 
     public void logError(String message, Throwable cause) {
-        logThread.logError(message, cause);
+        logger.logError(message, cause);
     }
 
     public void logFatal(String message, Throwable cause) {
-        logThread.logFatal(message, cause);
+        logger.logFatal(message, cause);
     }
 
     public void drain() {
@@ -151,8 +154,8 @@ public class Harness {
             if (serviceUdp != null)
                 serviceUdp.die();
             logInfo("Stopped");
-            if (logThread != null)
-                logThread.die();
+            if (logger != null)
+                logger.die();
         }
     }
 }

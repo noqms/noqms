@@ -16,6 +16,8 @@
 
 package com.noqms;
 
+import java.util.Properties;
+
 import com.noqms.framework.Harness;
 
 /**
@@ -40,6 +42,26 @@ public class MicroService {
         this.harness = harness;
     }
 
+    /**
+     * Override this to perform one-time initialization for your microservice regardless of the number of threads.
+     */
+    public void initialize() throws Exception {
+    }
+
+    /**
+     * @return startup properties
+     */
+    public Properties getProperties() {
+        return harness.getProperties();
+    }
+
+    /**
+     * @return the logger
+     */
+    public LogListener getLogger() {
+        return harness.getLogger();
+    }
+    
     /**
      * Override this to implement your microservice request processing.
      * 

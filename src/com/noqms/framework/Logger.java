@@ -24,15 +24,16 @@ import com.noqms.LogListener;
  * @author Stanley Barzee
  * @since 1.0.0
  */
-public class LogThread extends Thread implements LogListener {
+public class Logger extends Thread implements LogListener {
     private final ArrayDeque<LogEntry> logEntries = new ArrayDeque<>();
     private final LogListener otherLogger;
     private final String serviceName;
 
-    public LogThread(String serviceName, LogListener otherLogger) {
+    public Logger(String serviceName, LogListener otherLogger) {
         this.serviceName = serviceName;
         this.otherLogger = otherLogger;
         setDaemon(true);
+        start();
     }
 
     @Override
