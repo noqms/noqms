@@ -73,7 +73,7 @@ public class Harness {
             processor = new Processor(this);
             processor.start();
         } catch (Throwable th) {
-            logError("Start exception", th);
+            logger.logError("Start exception", th);
             throw new Exception("Start exception", th);
         }
 
@@ -81,7 +81,7 @@ public class Harness {
 
         // Time is given to become aware of the other microservices, important if the finder is multicast.
         Util.sleepMillis(2 * config.emitterIntervalMillis);
-        logInfo("Started: address=" + myInetAddress + " port=" + serviceUdp.getReceivePort() + " group="
+        logger.logInfo("Started: address=" + myInetAddress + " port=" + serviceUdp.getReceivePort() + " group="
                 + config.groupName);
 
         return processor.getMicroService();
@@ -115,24 +115,12 @@ public class Harness {
         return serviceUdp;
     }
 
-    public void logInfo(String message) {
-        logger.logInfo(message);
-    }
-
-    public void logWarn(String message) {
-        logger.logWarn(message);
-    }
-
-    public void logError(String message, Throwable cause) {
-        logger.logError(message, cause);
-    }
-
     public void drain() {
-        logInfo("Draining");
+        logger.logInfo("Draining");
         if (serviceInfoEmitter != null)
             serviceInfoEmitter.die();
         Util.sleepMillis(config.emitterIntervalMillis);
-        logInfo("Drained");
+        logger.logInfo("Drained");
     }
 
     public void stop() {
@@ -149,9 +137,8 @@ public class Harness {
             }
             if (serviceUdp != null)
                 serviceUdp.die();
-            logInfo("Stopped");
-            if (logger != null)
-                logger.die();
+            logger.logInfo("Stopped");
+            logger.die();
         }
     }
 }

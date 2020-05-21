@@ -77,7 +77,7 @@ public class ServiceInfoEmitter extends Thread {
                 InetAddress myAddress = Util.findMyInetAddress();
                 harness.getServiceFinder().sendMyServiceInfo(myServiceName, myAddress, myPort, myTimeoutMillis);
             } catch (Throwable th) {
-                harness.logError("Pluggable service finder threw an exception in sendMyServiceInfo()", th);
+                harness.getLogger().logError("Pluggable service finder threw an exception in sendMyServiceInfo()", th);
             }
             // Introduce jitter for better distribution when a low number of a given unique microservice exists
             int sleepMillis = intervalMillis - intervalHalfWindowMillis + random.nextInt(2 * intervalHalfWindowMillis);

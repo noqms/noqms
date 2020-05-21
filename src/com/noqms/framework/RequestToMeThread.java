@@ -77,7 +77,7 @@ public class RequestToMeThread extends Thread {
                     microservice.processRequest(request.requestId, request.serviceNameFrom, request.data);
                     harness.getProcessor().processRequestMillis((int)(System.currentTimeMillis() - startTimeMillis));
                 } catch (Throwable th) {
-                    harness.logError("Your microservice threw an exception in processRequest()", th);
+                    harness.getLogger().logError("Your microservice threw an exception in processRequest()", th);
                 }
             }
         }

@@ -70,7 +70,7 @@ public class MicroService {
      * @param data            application and microservice specific message data
      */
     public void processRequest(Long requestId, String serviceNameFrom, byte[] data) {
-        harness.logError("A request was received to an unimplemented processRequest()", null);
+        harness.getLogger().logError("A request was received to an unimplemented processRequest()", null);
     }
 
     /**
