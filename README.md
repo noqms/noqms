@@ -60,43 +60,4 @@ To run noqms:
 
 **xCPx** is *;. for Windows and *:. for Linux
 
-**key/value arguments** are in the form of key=value (like groupName=A serviceName=B) and include the following:
-
-     * groupName                 name of your group of interconnected microservices - must be the same between
-     *                           microservices intended to communicate with each other
-     * 
-     * serviceName               microservice name - must be unique among interconnected microservice types -
-     *                           instances of the same microservice type have the same microservice name
-     * 
-     * servicePath               com.x.x.x full path of your microservice - can reside anywhere on your classpath
-     * 
-     * threads                   number of threads simultaneously executing your microservice code - increase to
-     *                           fully utilize your resources (cpu/memory/disk) - consider 10s or 100s per core
-     * 
-     * typicalMillis             typical execution time of your microservice under normal circumstances - the
-     *                           back pressure threshold is roughly determined by threads * (timeoutMillis /
-     *                           typicalMillis)
-     * 
-     * timeoutMillis             time after which unanswered requests to your microservice are considered failed
-     *                           for whatever reason - the back pressure threshold is roughly determined by
-     *                           threads * (timeoutMillis / typicalMillis)
-     * 
-     * maxMessageOutBytes        max bytes for outgoing messages from your microservice, including both requests
-     *                           and responses from you
-     * 
-     * maxMessageInBytes         max bytes for incoming messages to your microservice, including both requests
-     *                           and responses to you
-     * 
-     * emitterIntervalSeconds    default=2 - interval that microservice info is broadcast - must be the same
-     *                           between interconnected microservices
-     * 
-     * serviceUnavailableSeconds default=5 - interval after which a microservice is considered dead or
-     *                           unavailable if microservice info has not been received for it - must be the same
-     *                           between interconnected microservices
-     * 
-     * serviceFinderPath         default="com.noqms.finder.multicast.ServiceFinderMulticast" - the full path of a
-     *                           pluggable microservice discovery mechanism - can be anywhere on your classpath
-     * 
-     * dataPort                  default=any available - UDP port the framework reads for incoming microservice
-     *                           application data - this is broadcast automatically by the framework
-     
+**key/value arguments** are documented in the [Runner](https://github.com/noqms/noqms/blob/master/src/com/noqms/Runner.java)
