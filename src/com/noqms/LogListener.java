@@ -27,6 +27,11 @@ public interface LogListener {
     /**
      * @param text descriptive text
      */
+    public void logDebug(String text);
+
+    /**
+     * @param text descriptive text
+     */
     public void logInfo(String text);
 
     /**
@@ -39,10 +44,4 @@ public interface LogListener {
      * @param cause may be null
      */
     public void logError(String text, Throwable cause);
-
-    /**
-     * @param text  descriptive text
-     * @param cause may be null
-     */
-    public void logFatal(String text, Throwable cause);
 }

@@ -37,6 +37,11 @@ public class Logger extends Thread implements LogListener {
     }
 
     @Override
+    public void logDebug(String text) {
+        addEntry(Level.DEBUG, text, null);
+    }
+
+    @Override
     public void logInfo(String text) {
         addEntry(Level.INFO, text, null);
     }
@@ -49,11 +54,6 @@ public class Logger extends Thread implements LogListener {
     @Override
     public void logError(String text, Throwable cause) {
         addEntry(Level.ERROR, text, cause);
-    }
-
-    @Override
-    public void logFatal(String text, Throwable cause) {
-        addEntry(Level.FATAL, text, cause);
     }
 
     public void die() {
@@ -89,7 +89,7 @@ public class Logger extends Thread implements LogListener {
                 String causeMessage = cause == null ? "" : (": " + cause.toString());
                 String text = "Noqms: " + serviceName + ": " + logEntry.text;
                 if (externalLogger == null) {
-                    if (logEntry.level == Level.INFO)
+                    if (logEntry.level == Level.DEBUG || logEntry.level == Level.INFO)
                         System.out.println(text + causeMessage);
                     else
                         System.err.println(text + causeMessage);
@@ -98,6 +98,9 @@ public class Logger extends Thread implements LogListener {
                 } else {
                     try {
                         switch (logEntry.level) {
+                        case DEBUG:
+                            externalLogger.logDebug(text);
+                            break;
                         case INFO:
                             externalLogger.logInfo(text);
                             break;
@@ -106,9 +109,6 @@ public class Logger extends Thread implements LogListener {
                             break;
                         case ERROR:
                             externalLogger.logError(text, cause);
-                            break;
-                        case FATAL:
-                            externalLogger.logFatal(text, cause);
                             break;
                         }
                     } catch (Throwable th) {
@@ -121,7 +121,7 @@ public class Logger extends Thread implements LogListener {
     }
 
     private enum Level {
-        INFO, WARN, ERROR, FATAL
+        DEBUG, INFO, WARN, ERROR
     }
 
     private static class LogEntry {

@@ -48,7 +48,7 @@ public class Harness {
             config = Config.createFromProperties(props);
         } catch (Exception ex) {
             if (externalLogger != null)
-                externalLogger.logFatal("Noqms: Failed parsing properties: " + ex.getMessage(), null);
+                externalLogger.logError("Noqms: Failed parsing properties: " + ex.getMessage(), null);
             else
                 System.err.println("Noqms: Failed parsing properties: " + ex.getMessage());
             throw ex;
@@ -73,7 +73,7 @@ public class Harness {
             processor = new Processor(this);
             processor.start();
         } catch (Throwable th) {
-            logFatal("Start exception", th);
+            logError("Start exception", th);
             throw new Exception("Start exception", th);
         }
 
@@ -94,7 +94,7 @@ public class Harness {
     public Properties getProperties() {
         return props;
     }
-    
+
     public LogListener getLogger() {
         return logger;
     }
@@ -125,10 +125,6 @@ public class Harness {
 
     public void logError(String message, Throwable cause) {
         logger.logError(message, cause);
-    }
-
-    public void logFatal(String message, Throwable cause) {
-        logger.logFatal(message, cause);
     }
 
     public void drain() {
