@@ -40,7 +40,7 @@ public class SimpleRunner {
             props = Util.argsToProps(args);
         } catch (Exception ex) {
             System.err.println("Noqms: Error parsing command line arguments: " + ex.getMessage());
-            return;
+            System.exit(-1);
         }
         try {
             Starter.start(props);
