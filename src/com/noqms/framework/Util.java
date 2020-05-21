@@ -38,7 +38,7 @@ public class Util {
         for (String arg : args) {
             int equalsPos = arg.indexOf('=');
             if (equalsPos < 1)
-                throw new Exception("Failed parsing arg for key value pair: " + arg);
+                throw new Exception("Failed parsing args for key value pair: " + arg);
             String key = arg.substring(0, equalsPos);
             String value = arg.substring(equalsPos + 1);
             props.put(key, value);

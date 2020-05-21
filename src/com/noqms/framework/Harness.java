@@ -48,9 +48,9 @@ public class Harness {
             config = Config.createFromProperties(props);
         } catch (Exception ex) {
             if (otherLogger != null)
-                otherLogger.logFatal("Config exception: " + ex.getMessage(), null);
+                otherLogger.logFatal("Failed parsing properties: " + ex.getMessage(), null);
             else
-                System.err.println("Noqms: Config exception: " + ex.getMessage());
+                System.err.println("Noqms: Failed parsing properties: " + ex.getMessage());
             throw ex;
         }
 
