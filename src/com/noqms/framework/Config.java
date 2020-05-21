@@ -74,8 +74,8 @@ public class Config {
         if (typicalMillis <= 0)
             throw new Exception("Property noqms.typicalMillis must be positive: " + typicalMillis);
         if (timeoutMillis < typicalMillis)
-            throw new Exception("Property noqms.timeoutMillis must be greater than noqms.typicalMillis: " + timeoutMillis
-                    + ", " + typicalMillis);
+            throw new Exception("Property noqms.timeoutMillis must be greater than noqms.typicalMillis: "
+                    + timeoutMillis + ", " + typicalMillis);
         if (groupName.length() > MAX_STRING_LENGTH)
             throw new Exception(
                     "Property noqms.groupName length must not be greater than " + MAX_STRING_LENGTH + ": " + groupName);

@@ -119,7 +119,7 @@ public class Harness {
         logger.logInfo("Draining");
         if (serviceInfoEmitter != null)
             serviceInfoEmitter.die();
-        Util.sleepMillis(config.emitterIntervalMillis);
+        Util.sleepMillis(config.serviceUnavailableMillis);
         logger.logInfo("Drained");
     }
 
