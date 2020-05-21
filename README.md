@@ -46,13 +46,21 @@ One benefit of not having a centralized queue - and of the framework being capab
 microservices locally and within the same process (not the intended production scenario) - is that the development 
 and debugging phase is now nearly back to "not harder" than traditional architectures. 
 
-To run noqms:
+## Running
+
+Your microservice can be started from within your own code using the [Starter](https://github.com/noqms/noqms/blob/master/src/com/noqms/Starter.java).
+For a standalone microservice, a very simple runner like that found [here](https://github.com/noqms/noqms/blob/master/src/com/noqms/SimpleRunner.java)
+can be used, which is just a main() that converts arguments from the command line and passes them to the Starter.
+Finally, a full featured standalone runner with logging support and dynamic microservice lifecycle management based on configuration files can
+be found in the [noqms-runner](https://github.com/noqms/noqms-runner) project. 
+
+To run a standalone microservice within noqms using just the simple runner found in this project:
 
 * Install Java 12 or greater
 * Put all of the noqms release files and dependencies in a directory as well as your microservice jar
 * cd to that directory
-* java -server -cp **xCPx** com.noqms.Runner **key/value arguments**
+* java -server -cp **xCPx** com.noqms.SimpleRunner **key/value arguments**
 
 **xCPx** is *;. for Windows and *:. for Linux
 
-**key/value arguments** are documented in the [Runner](https://github.com/noqms/noqms/blob/master/src/com/noqms/Runner.java)
+**key/value arguments** are documented in the [Starter](https://github.com/noqms/noqms/blob/master/src/com/noqms/Starter.java)

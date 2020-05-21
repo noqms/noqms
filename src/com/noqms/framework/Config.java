@@ -18,7 +18,7 @@ package com.noqms.framework;
 
 import java.util.Properties;
 
-import com.noqms.Runner;
+import com.noqms.Starter;
 
 /**
  * @author Stanley Barzee
@@ -45,20 +45,20 @@ public class Config {
     public final int dataPort;
 
     public static Config createFromProperties(Properties props) throws Exception {
-        int threads = loadInt(props, Runner.ARG_THREADS, null);
-        int timeoutMillis = loadInt(props, Runner.ARG_TIMEOUT_MILLIS, null);
-        String serviceName = loadString(props, Runner.ARG_SERVICE_NAME, null);
-        String servicePath = loadString(props, Runner.ARG_SERVICE_PATH, null);
-        int maxMessageOutBytes = loadInt(props, Runner.ARG_MAX_MESSAGE_OUT_BYTES, null);
-        int maxMessageInBytes = loadInt(props, Runner.ARG_MAX_MESSAGE_IN_BYTES, null);
-        int typicalMillis = loadInt(props, Runner.ARG_TYPICAL_MILLIS, null);
-        String groupName = loadString(props, Runner.ARG_GROUP_NAME, null);
-        int emitterIntervalSeconds = loadInt(props, Runner.ARG_EMITTER_INTERVAL_SECONDS,
+        int threads = loadInt(props, Starter.ARG_THREADS, null);
+        int timeoutMillis = loadInt(props, Starter.ARG_TIMEOUT_MILLIS, null);
+        String serviceName = loadString(props, Starter.ARG_SERVICE_NAME, null);
+        String servicePath = loadString(props, Starter.ARG_SERVICE_PATH, null);
+        int maxMessageOutBytes = loadInt(props, Starter.ARG_MAX_MESSAGE_OUT_BYTES, null);
+        int maxMessageInBytes = loadInt(props, Starter.ARG_MAX_MESSAGE_IN_BYTES, null);
+        int typicalMillis = loadInt(props, Starter.ARG_TYPICAL_MILLIS, null);
+        String groupName = loadString(props, Starter.ARG_GROUP_NAME, null);
+        int emitterIntervalSeconds = loadInt(props, Starter.ARG_EMITTER_INTERVAL_SECONDS,
                 DEFAULT_EMITTER_INTERVAL_SECONDS);
-        int serviceUnavailableSeconds = loadInt(props, Runner.ARG_SERVICE_UNAVAILABLE_SECONDS,
+        int serviceUnavailableSeconds = loadInt(props, Starter.ARG_SERVICE_UNAVAILABLE_SECONDS,
                 DEFAULT_SERVICE_UNAVAILABLE_SECONDS);
-        String serviceFinderPath = loadString(props, Runner.ARG_SERVICE_FINDER_PATH, DEFAULT_SERVICE_FINDER_PATH);
-        int dataPort = loadInt(props, Runner.ARG_DATA_PORT, 0);
+        String serviceFinderPath = loadString(props, Starter.ARG_SERVICE_FINDER_PATH, DEFAULT_SERVICE_FINDER_PATH);
+        int dataPort = loadInt(props, Starter.ARG_DATA_PORT, 0);
 
         if (threads <= 0)
             throw new Exception("Property noqms.threads must positive: " + threads);

@@ -22,23 +22,12 @@ import com.noqms.framework.Harness;
 import com.noqms.framework.Util;
 
 /**
- * Provides main and methods for starting a microservice.
- * <p>
- * The typical method, using main() for standalone execution, starts the microservice at servicePath and runs forever.
- * The microservice is the program. Run using "java argname1=value argname2=value ..." format.
- * <p>
- * The start() method, starting execution from your own program/process using start(), starts the microservice at
- * servicePath and returns in 2 * noqms.emitterIntervalSeconds (giving time to become aware of other microservices). You
- * can invoke this multiple times with different properties to run multiple microservices from the same process if
- * desired. Typically, however, each microservice would run within its own resource-tailored (virtual) environment. You
- * can also run the same microservice multiple times within the same process - but, instead, run just one and simply
- * increase the threads setting. start() returns the singular instance of your microservice which you can downcast to
- * your microservice class to deal with directly if needed.
+ * Methods for starting a microservice from the given properties.
  * 
  * @author Stanley Barzee
  * @since 1.0.0
  */
-public class Runner {
+public class Starter {
     public static final String ARG_GROUP_NAME = "noqms.groupName";
     public static final String ARG_SERVICE_NAME = "noqms.serviceName";
     public static final String ARG_SERVICE_PATH = "noqms.servicePath";
@@ -53,9 +42,7 @@ public class Runner {
     public static final String ARG_DATA_PORT = "noqms.dataPort";
 
     /**
-     * Start the microservice at servicePath and with the specified command line parameters.
-     * 
-     * @param args                            command line args with the following key/value pairs
+     * Start the microservice at noqms.servicePath and with the following specified property key/value pairs.
      * 
      * @param noqms.groupName                 name of your group of interconnected microservices - must be the same
      *                                        between microservices intended to communicate with each other
@@ -98,27 +85,11 @@ public class Runner {
      * @param noqms.dataPort                  default=any available - UDP port this service reads for incoming
      *                                        microservice application data
      */
-    public static void main(String[] args) {
-        Properties props = null;
-        try {
-            props = Util.argsToProps(args);
-        } catch (Exception ex) {
-            System.err.println("Noqms: Error parsing command line arguments: " + ex.getMessage());
-            return;
-        }
-        try {
-            start(props);
-        } catch (Exception ex) {
-            System.err.println("Noqms: " + ex.getMessage());
-            System.exit(-1);
-        }
-        Util.sleepMillis(Integer.MAX_VALUE);
-    }
 
     /**
      * Start a microservice.
      * 
-     * @param props key/value pairs - see {@link Runner#main main} for names and descriptions
+     * @param props key/value pairs - see above (Starter.java source) for names and descriptions
      * @return an instance of the microservice at noqms.servicePath
      */
     public static MicroService start(Properties props) throws Exception {
@@ -126,9 +97,9 @@ public class Runner {
     }
 
     /**
-     * Start a microservice.
+     * Start a microservice with an optional external logger.
      * 
-     * @param props          key/value pairs - see {@link Runner#main main} for names and descriptions
+     * @param props          key/value pairs - see above (Starter.java source) for names and descriptions
      * @param externalLogger an optional real logger; otherwise it is just stdout and stderr
      * @return an instance of the microservice at noqms.servicePath
      */
