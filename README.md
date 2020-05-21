@@ -3,6 +3,8 @@ NoQMS - No Queue Microservices - Java Framework
 
 ![alt text](architecture.svg)
 
+## About
+
 I coined the term NoQMS - No Queue Microservices - to describe microservices with no dependency on
 a centralized queue.
 
@@ -49,7 +51,7 @@ and debugging phase is now nearly back to "not harder" than traditional architec
 ## Running
 
 Your microservice can be started from within your own code using the [Starter](https://github.com/noqms/noqms/blob/master/src/com/noqms/Starter.java).
-For a standalone microservice, a very simple runner like that found [here](https://github.com/noqms/noqms/blob/master/src/com/noqms/SimpleRunner.java)
+For a minimal standalone microservice implementation, the [SimpleRunner](https://github.com/noqms/noqms/blob/master/src/com/noqms/SimpleRunner.java)
 can be used, which is just a main() that converts arguments from the command line and passes them to the Starter.
 Finally, a full featured standalone runner with logging support and dynamic microservice lifecycle management based on configuration files can
 be found in the [noqms-runner](https://github.com/noqms/noqms-runner) project. 
