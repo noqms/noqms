@@ -32,9 +32,7 @@ communication error or timeout occurs, a requirement also found in any well writ
 It all comes down to architecting and balancing for fewer failures, then handling failure case which will occur 
 regardless of what communication tech is utilized. One downside of UDP includes 
 single packet limits of under 64K. So write your microservices accordingly, thinking carefully about not turning it 
-into a <i>macro</i>service before applying workarounds (paging, application level packet reassembly, etc) for that limit. 
-Additionally, in the event of transmission failure, we know that we must program for failure anyway in order to have a 
-robust system. Timeouts are an integral part of the NoQMS framework, covered next.
+into a <i>macro</i>service before applying workarounds for that limit. 
 
 Timeouts are first class citizens in this architecture. With each microservice the application developer specifies the
 typicalMillis and the timeoutMillis for that microservices. The framework handles the rest - notifying a requester when
@@ -47,8 +45,6 @@ cases - which includes timeouts - makes for a more robust system.
 One benefit of not having a centralized queue - and of the framework being capable of instantiation any number of
 microservices locally and within the same process (not the intended production scenario) - is that the development 
 and debugging phase is now nearly back to "not harder" than traditional architectures. 
-
-[Tests](https://github.com/noqms/noqms-tests) for this framework reside in sibling projects.
 
 To run noqms:
 
