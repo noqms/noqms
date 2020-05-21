@@ -3,9 +3,12 @@ NoQMS - No Queue Microservices - Java Framework
 
 ![alt text](architecture.svg)
 
+I coined the term NoQMS - No Queue Microservices - to describe microservices with no dependency on
+a centralized queue.
+
 Microservices without a centralized queue is a perfectly viable architecture given there is 
 an efficient way for the microservices to discover each other. UDP multicast is a great solution for
-this. UDP multicast is supported by Linode and Digital Ocean, for example, but not by the other major
+this. UDP multicast is supported by Linode and Digital Ocean, for example, but not by other major
 cloud providers. For the others, this framework includes a pluggable Service Finder which allows developers 
 to create their own discovery mechanism and class, replacing the built in UDP multicast service finder if 
 needed. A unicast implementation of this ([unicast service finder](https://github.com/noqms/noqms-finder-unicast)) 
@@ -13,23 +16,24 @@ is now available as well as the required accompanying server ([unicast service f
 UDP multicast somewhat reduces the attractiveness of NoQMS which otherwise requires no other running process 
 to accommodate a microservice system.
 
-I coined the term NoQMS - No Queue Microservices - to describe microservices with no dependency on
-a centralized queue.
-
 This Java implementation of the NoQMS architecture shown above is lean and mean - the central
 processor itself is a single thread with no dependencies on blocking processes. 
 
 Your microservice code runs in as many configurable threads as you want.
-This allows you to adjust to better take advantage of the (virtual) environment's resources such as CPU and memory. 
+This allows you to adjust to better take advantage of the environment's resources such as CPU and memory. 
 Outside of the single (potentially multi-threaded) microservice instance, the framework supports discovering and
-utilizing all microservice instances (running, ideally, on virtual environments of their own) 
-that are making their presence and availability known. This yields scalability and also better reliability in the event 
+utilizing all microservice instances that are making their presence and availability known. 
+This yields scalability and also better reliability in the event 
 of failure as you would expect. A NoQMS microservice can also run within a container orchestration system
 and benefit from all the goodies that brings just like traditional microservices. 
 
-UDP unicast is an excellent choice for the application level inter microservice messages. Developers should not
-dismiss UDP offhand. Utilized correctly, it scales far beyond TCP for obvious reasons. UDP is very reliable
-when there the receiving end is processing the data in a timely fashion. One downside of UDP includes 
+UDP is an excellent choice for inter microservice messages.
+Utilized correctly, it scales far beyond TCP for obvious reasons. UDP is also very reliable
+when the receiving end is processing the data in a timely fashion. Message delivery failure detection 
+(naturally present in a request/response architecture) allows the appropriate action to be taken when a 
+communication error or timeout occurs, a requirement also found in any well written TCP reliant application.
+It all comes down to architecting and balancing for fewer failures, then handling failure case which will occur 
+regardless of what communication tech is utilized. One downside of UDP includes 
 single packet limits of under 64K. So write your microservices accordingly, thinking carefully about not turning it 
 into a <i>macro</i>service before applying workarounds (paging, application level packet reassembly, etc) for that limit. 
 Additionally, in the event of transmission failure, we know that we must program for failure anyway in order to have a 
