@@ -29,7 +29,7 @@ Utilized correctly, it scales far beyond TCP for obvious reasons. UDP is also ve
 when the receiving end is processing the data in a timely fashion. Message delivery failure detection 
 (naturally present in a request/response architecture) allows the appropriate action to be taken when a 
 communication error or timeout occurs, a requirement also found in any well written TCP reliant application.
-It all comes down to architecting and balancing for fewer failures, then handling failure case which will occur 
+It all comes down to architecting and balancing for fewer failures, then handling failure cases which will occur 
 regardless of what communication tech is utilized. One downside of UDP includes 
 single packet limits of under 64K. So write your microservices accordingly, thinking carefully about not turning it 
 into a <i>macro</i>service before applying workarounds for that limit. 
