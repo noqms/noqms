@@ -26,12 +26,12 @@ import com.noqms.LogListener;
  */
 public class Logger extends Thread implements LogListener {
     private final ArrayDeque<LogEntry> logEntries = new ArrayDeque<>();
-    private final LogListener otherLogger;
+    private final LogListener externalLogger;
     private final String serviceName;
 
-    public Logger(String serviceName, LogListener otherLogger) {
+    public Logger(String serviceName, LogListener externalLogger) {
         this.serviceName = serviceName;
-        this.otherLogger = otherLogger;
+        this.externalLogger = externalLogger;
         setDaemon(true);
         start();
     }
@@ -88,7 +88,7 @@ public class Logger extends Thread implements LogListener {
                 Throwable cause = logEntry.cause;
                 String causeMessage = cause == null ? "" : (": " + cause.toString());
                 String text = "Noqms: " + serviceName + ": " + logEntry.text;
-                if (otherLogger == null) {
+                if (externalLogger == null) {
                     if (logEntry.level == Level.INFO)
                         System.out.println(text + causeMessage);
                     else
@@ -99,20 +99,21 @@ public class Logger extends Thread implements LogListener {
                     try {
                         switch (logEntry.level) {
                         case INFO:
-                            otherLogger.logInfo(text);
+                            externalLogger.logInfo(text);
                             break;
                         case WARN:
-                            otherLogger.logWarn(text);
+                            externalLogger.logWarn(text);
                             break;
                         case ERROR:
-                            otherLogger.logError(text, cause);
+                            externalLogger.logError(text, cause);
                             break;
                         case FATAL:
-                            otherLogger.logFatal(text, cause);
+                            externalLogger.logFatal(text, cause);
                             break;
                         }
-                    } catch (Exception ex) {
-                        System.err.println("Your logger threw an exception: " + ex.getMessage());
+                    } catch (Throwable th) {
+                        System.err.println("Your logger threw an exception: " + th.getMessage());
+                        th.printStackTrace();
                     }
                 }
             }

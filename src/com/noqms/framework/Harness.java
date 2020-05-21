@@ -39,7 +39,7 @@ public class Harness {
     private ServiceUdp serviceUdp;
     private final AtomicBoolean stopped = new AtomicBoolean();
 
-    public MicroService start(Properties props, LogListener otherLogger) throws Exception {
+    public MicroService start(Properties props, LogListener externalLogger) throws Exception {
         if (props == null)
             throw new IllegalArgumentException("Start properties must be given");
         this.props = props;
@@ -47,14 +47,14 @@ public class Harness {
         try {
             config = Config.createFromProperties(props);
         } catch (Exception ex) {
-            if (otherLogger != null)
-                otherLogger.logFatal("Failed parsing properties: " + ex.getMessage(), null);
+            if (externalLogger != null)
+                externalLogger.logFatal("Noqms: Failed parsing properties: " + ex.getMessage(), null);
             else
                 System.err.println("Noqms: Failed parsing properties: " + ex.getMessage());
             throw ex;
         }
 
-        logger = new Logger(config.serviceName, otherLogger);
+        logger = new Logger(config.serviceName, externalLogger);
         logger.logInfo("Starting: " + props);
 
         serviceInfoEmitter = new ServiceInfoEmitter(this);

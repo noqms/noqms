@@ -128,11 +128,11 @@ public class Runner {
     /**
      * Start a microservice.
      * 
-     * @param props       key/value pairs - see {@link Runner#main main} for names and descriptions
-     * @param logListener optional log listener
+     * @param props          key/value pairs - see {@link Runner#main main} for names and descriptions
+     * @param externalLogger an optional real logger; otherwise it is just stdout and stderr
      * @return an instance of the microservice at noqms.servicePath
      */
-    public static MicroService start(Properties props, LogListener logListener) throws Exception {
-        return new Harness().start(props, logListener);
+    public static MicroService start(Properties props, LogListener externalLogger) throws Exception {
+        return new Harness().start(props, externalLogger);
     }
 }
