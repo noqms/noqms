@@ -86,7 +86,7 @@ public class Starter {
      */
 
     /**
-     * Start a microservice.
+     * Start a microservice. Takes noqms.emitterIntervalSeconds to complete.
      * 
      * @param props key/value pairs - see above (Starter.java source) for names and descriptions
      * @return an instance of the microservice at noqms.servicePath
@@ -96,7 +96,7 @@ public class Starter {
     }
 
     /**
-     * Start a microservice with an optional external logger.
+     * Start a microservice with an optional external logger. Takes noqms.emitterIntervalSeconds to complete.
      * 
      * @param props          key/value pairs - see above (Starter.java source) for names and descriptions
      * @param externalLogger an optional real logger; otherwise it is just stdout and stderr

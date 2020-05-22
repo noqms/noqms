@@ -79,7 +79,7 @@ public class ServiceInfoEmitter extends Thread {
             } catch (Throwable th) {
                 harness.getLogger().logError("Pluggable service finder threw an exception in sendMyServiceInfo()", th);
             }
-            // Introduce jitter for better distribution when a low number of a given unique microservice exists
+            // Introduce jitter for better distribution when a low number of a given unique microservice exists.
             int sleepMillis = intervalMillis - intervalHalfWindowMillis + random.nextInt(2 * intervalHalfWindowMillis);
             Util.sleepMillis(sleepMillis);
         }

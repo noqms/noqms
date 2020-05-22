@@ -137,7 +137,7 @@ public class MicroService {
     }
 
     /**
-     * Drain the microservice prior to stopping. Takes config serviceUnavailableSeconds to complete. Override this to
+     * Drain the microservice prior to stopping. Takes noqms.serviceUnavailableSeconds to complete. Override this to
      * implement your own drain, but make sure to also call this super first.
      */
     public void drain() {
