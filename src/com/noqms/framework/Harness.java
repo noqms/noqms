@@ -54,7 +54,7 @@ public class Harness {
             throw ex;
         }
 
-        logger = new Logger(config.serviceName, externalLogger);
+        logger = new Logger(config.groupName + "." + config.serviceName, externalLogger);
         logger.logInfo("Starting: " + props);
 
         serviceInfoEmitter = new ServiceInfoEmitter(this);
