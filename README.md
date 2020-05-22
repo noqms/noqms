@@ -1,9 +1,6 @@
-# noqms
-NoQMS - No Queue Microservices - Java Framework
+## NoQMS - No Queue Microservices - Java Framework
 
 ![alt text](architecture.svg)
-
-## About
 
 I coined the term NoQMS - No Queue Microservices - to describe microservices with no dependency on
 a centralized queue.
@@ -50,19 +47,19 @@ and debugging phase is now nearly back to "not harder" than traditional architec
 
 ## Running
 
-Your microservice can be started from within your own code using the [Starter](https://github.com/noqms/noqms/blob/master/src/com/noqms/Starter.java).
-For a minimal standalone microservice implementation, the [SimpleRunner](https://github.com/noqms/noqms/blob/master/src/com/noqms/SimpleRunner.java)
+Your microservice can be started from within your own code using [Starter.java](https://github.com/noqms/noqms/blob/master/src/com/noqms/Starter.java).
+For a minimal standalone microservice implementation, [SimpleRunner.java](https://github.com/noqms/noqms/blob/master/src/com/noqms/SimpleRunner.java)
 can be used, which is just a main() that converts arguments from the command line and passes them to the Starter.
-Finally, a full featured standalone runner with logging support and dynamic microservice lifecycle management based on configuration files can
+Finally, a fuller featured standalone runner with logging integration and dynamic microservice lifecycle management based on configuration files can
 be found in the [noqms-runner](https://github.com/noqms/noqms-runner) project. 
 
 To run a standalone microservice within noqms using just the simple runner found in this project:
 
 * Install Java 12 or greater
-* Put all of the noqms release files and dependencies in a directory as well as your microservice jar
+* Put all of the noqms release files and dependencies in a directory along with your microservice jar
 * cd to that directory
 * java -server -cp **xCPx** com.noqms.SimpleRunner **key/value arguments**
 
 **xCPx** is *;. for Windows and *:. for Linux
 
-**key/value arguments** are documented in the [Starter](https://github.com/noqms/noqms/blob/master/src/com/noqms/Starter.java)
+**key/value arguments** are documented in [Starter.java](https://github.com/noqms/noqms/blob/master/src/com/noqms/Starter.java)
