@@ -27,18 +27,18 @@ import com.noqms.framework.Harness;
  * @since 1.0.0
  */
 public class Starter {
-    public static final String ARG_GROUP_NAME = "noqms.groupName";
-    public static final String ARG_SERVICE_NAME = "noqms.serviceName";
-    public static final String ARG_SERVICE_PATH = "noqms.servicePath";
-    public static final String ARG_THREADS = "noqms.threads";
-    public static final String ARG_TYPICAL_MILLIS = "noqms.typicalMillis";
-    public static final String ARG_TIMEOUT_MILLIS = "noqms.timeoutMillis";
-    public static final String ARG_MAX_MESSAGE_OUT_BYTES = "noqms.maxMessageOutBytes";
-    public static final String ARG_MAX_MESSAGE_IN_BYTES = "noqms.maxMessageInBytes";
-    public static final String ARG_EMITTER_INTERVAL_SECONDS = "noqms.emitterIntervalSeconds";
-    public static final String ARG_SERVICE_UNAVAILABLE_SECONDS = "noqms.serviceUnavailableSeconds";
-    public static final String ARG_SERVICE_FINDER_PATH = "noqms.serviceFinderPath";
-    public static final String ARG_DATA_PORT = "noqms.dataPort";
+    public static final String PROP_GROUP_NAME = "noqms.groupName";
+    public static final String PROP_SERVICE_NAME = "noqms.serviceName";
+    public static final String PROP_SERVICE_PATH = "noqms.servicePath";
+    public static final String PROP_THREADS = "noqms.threads";
+    public static final String PROP_TYPICAL_MILLIS = "noqms.typicalMillis";
+    public static final String PROP_TIMEOUT_MILLIS = "noqms.timeoutMillis";
+    public static final String PROP_MAX_MESSAGE_OUT_BYTES = "noqms.maxMessageOutBytes";
+    public static final String PROP_MAX_MESSAGE_IN_BYTES = "noqms.maxMessageInBytes";
+    public static final String PROP_EMITTER_INTERVAL_SECONDS = "noqms.emitterIntervalSeconds";
+    public static final String PROP_SERVICE_UNAVAILABLE_SECONDS = "noqms.serviceUnavailableSeconds";
+    public static final String PROP_SERVICE_FINDER_PATH = "noqms.serviceFinderPath";
+    public static final String PROP_DATA_PORT = "noqms.dataPort";
 
     /**
      * Start the microservice at noqms.servicePath and with the following specified property key/value pairs.

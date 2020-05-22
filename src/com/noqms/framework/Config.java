@@ -45,20 +45,20 @@ public class Config {
     public final int dataPort;
 
     public static Config createFromProperties(Properties props) throws Exception {
-        int threads = loadInt(props, Starter.ARG_THREADS, null);
-        int timeoutMillis = loadInt(props, Starter.ARG_TIMEOUT_MILLIS, null);
-        String serviceName = loadString(props, Starter.ARG_SERVICE_NAME, null);
-        String servicePath = loadString(props, Starter.ARG_SERVICE_PATH, null);
-        int maxMessageOutBytes = loadInt(props, Starter.ARG_MAX_MESSAGE_OUT_BYTES, null);
-        int maxMessageInBytes = loadInt(props, Starter.ARG_MAX_MESSAGE_IN_BYTES, null);
-        int typicalMillis = loadInt(props, Starter.ARG_TYPICAL_MILLIS, null);
-        String groupName = loadString(props, Starter.ARG_GROUP_NAME, null);
-        int emitterIntervalSeconds = loadInt(props, Starter.ARG_EMITTER_INTERVAL_SECONDS,
+        int threads = loadInt(props, Starter.PROP_THREADS, null);
+        int timeoutMillis = loadInt(props, Starter.PROP_TIMEOUT_MILLIS, null);
+        String serviceName = loadString(props, Starter.PROP_SERVICE_NAME, null);
+        String servicePath = loadString(props, Starter.PROP_SERVICE_PATH, null);
+        int maxMessageOutBytes = loadInt(props, Starter.PROP_MAX_MESSAGE_OUT_BYTES, null);
+        int maxMessageInBytes = loadInt(props, Starter.PROP_MAX_MESSAGE_IN_BYTES, null);
+        int typicalMillis = loadInt(props, Starter.PROP_TYPICAL_MILLIS, null);
+        String groupName = loadString(props, Starter.PROP_GROUP_NAME, null);
+        int emitterIntervalSeconds = loadInt(props, Starter.PROP_EMITTER_INTERVAL_SECONDS,
                 DEFAULT_EMITTER_INTERVAL_SECONDS);
-        int serviceUnavailableSeconds = loadInt(props, Starter.ARG_SERVICE_UNAVAILABLE_SECONDS,
+        int serviceUnavailableSeconds = loadInt(props, Starter.PROP_SERVICE_UNAVAILABLE_SECONDS,
                 DEFAULT_SERVICE_UNAVAILABLE_SECONDS);
-        String serviceFinderPath = loadString(props, Starter.ARG_SERVICE_FINDER_PATH, DEFAULT_SERVICE_FINDER_PATH);
-        int dataPort = loadInt(props, Starter.ARG_DATA_PORT, 0);
+        String serviceFinderPath = loadString(props, Starter.PROP_SERVICE_FINDER_PATH, DEFAULT_SERVICE_FINDER_PATH);
+        int dataPort = loadInt(props, Starter.PROP_DATA_PORT, 0);
 
         if (threads <= 0)
             throw new Exception("Property noqms.threads must positive: " + threads);
