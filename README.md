@@ -53,7 +53,7 @@ can be used, which is just a main() that converts arguments from the command lin
 Finally, a fuller featured standalone runner with logging integration and dynamic microservice lifecycle management based on configuration files can
 be found in the [noqms-runner](https://github.com/noqms/noqms-runner) project. 
 
-To run a standalone microservice within noqms using just the simple runner found in this project:
+To run a standalone microservice within noqms using the simple runner found in this project:
 
 * Download and install the latest [OpenJDK](http://openjdk.java.net/)
 * Download the latest [gson](https://mvnrepository.com/artifact/com.google.code.gson/gson)
