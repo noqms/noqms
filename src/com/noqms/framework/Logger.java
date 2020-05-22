@@ -90,9 +90,9 @@ public class Logger extends Thread implements LogListener {
                 String text = "Noqms: " + serviceName + ": " + logEntry.text;
                 if (externalLogger == null) {
                     if (logEntry.level == Level.DEBUG || logEntry.level == Level.INFO)
-                        System.out.println(text + causeMessage);
+                        System.out.println(logEntry.level + " " + text + causeMessage);
                     else
-                        System.err.println(text + causeMessage);
+                        System.err.println(logEntry.level + " " + text + causeMessage);
                     if (cause != null)
                         cause.printStackTrace();
                 } else {

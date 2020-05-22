@@ -79,10 +79,11 @@ public class Harness {
 
         serviceInfoEmitter.start();
 
-        // Time is given to become aware of the other microservices, important if the finder is multicast.
-        Util.sleepMillis(2 * config.emitterIntervalMillis);
         logger.logInfo("Started: address=" + myInetAddress + " port=" + serviceUdp.getReceivePort() + " group="
                 + config.groupName);
+
+        // Time is given to become aware of the other microservices, important if the finder is multicast.
+        Util.sleepMillis(100 + config.emitterIntervalMillis);
 
         return processor.getMicroService();
     }

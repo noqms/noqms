@@ -77,7 +77,7 @@ public class Processor extends Thread {
         }
 
         for (int ix = 0; ix < config.threads; ix++)
-            requestToMeThreads.add(new RequestToMeThread(harness.getConfig().serviceName + " - Thread #" + (ix + 1),
+            requestToMeThreads.add(new RequestToMeThread(harness.getConfig().serviceName + " TH#" + (ix + 1),
                     harness, requestsToMe, microService));
         for (RequestToMeThread requestToMeThread : requestToMeThreads)
             requestToMeThread.start();

@@ -19,7 +19,6 @@ package com.noqms;
 import java.util.Properties;
 
 import com.noqms.framework.Harness;
-import com.noqms.framework.Util;
 
 /**
  * Methods for starting a microservice from the given properties.

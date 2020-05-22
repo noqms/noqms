@@ -115,7 +115,9 @@ public class ServiceFinderMulticast extends ServiceFinder {
 
                 ServiceInstance service = new ServiceInstance(message.address, message.port, message.timeoutMillis,
                         System.currentTimeMillis());
-                serviceNameToService.put(message.serviceName, service);
+                if (serviceNameToService.put(message.serviceName, service) == null)
+                    logger.logInfo("New microservice multicast received: name=" + message.serviceName + " address="
+                            + message.address + " port=" + message.port);
             }
         }
     }
