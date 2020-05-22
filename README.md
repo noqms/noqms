@@ -55,11 +55,14 @@ be found in the [noqms-runner](https://github.com/noqms/noqms-runner) project.
 
 To run a standalone microservice within noqms using just the simple runner found in this project:
 
-* Install Java 12 or greater
-* Put all of the noqms release files and dependencies in a directory along with your microservice jar
+* Download and install the latest [OpenJDK](http://openjdk.java.net/)
+* Download the latest [gson](https://mvnrepository.com/artifact/com.google.code.gson/gson)
+* Download noqms and compile the noqms jar.
+* Create your own microservice(s) extending the MicroService class and compile into a jar.
+* Put those jars together into a directory.
 * cd to that directory
-* java -server -cp **xCPx** com.noqms.SimpleRunner **key/value arguments**
+* Execute: java -server -cp **xCPx** com.noqms.SimpleRunner **key/value arguments**
 
 **xCPx** is *;. for Windows and *:. for Linux
 
-**key/value arguments** are documented in [Starter.java](https://github.com/noqms/noqms/blob/master/src/com/noqms/Starter.java)
+**key/value arguments** include the NoQMS microservice properties documented in [Starter.java](https://github.com/noqms/noqms/blob/master/src/com/noqms/Starter.java), as well as any of your microservice specific properties.
