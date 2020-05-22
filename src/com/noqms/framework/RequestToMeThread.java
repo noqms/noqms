@@ -30,6 +30,7 @@ public class RequestToMeThread extends Thread {
     private final Harness harness;
     private final MicroService microservice;
     private final AtomicBoolean die = new AtomicBoolean();
+    private final int threadIndex;
 
     public static class Request {
         public final Long requestId;
@@ -43,12 +44,12 @@ public class RequestToMeThread extends Thread {
         }
     }
 
-    public RequestToMeThread(String name, Harness harness, ArrayDeque<Request> requestsToMe,
-            MicroService microservice) {
+    public RequestToMeThread(Harness harness, ArrayDeque<Request> requestsToMe, MicroService microservice,
+            int threadIndex) {
         this.requestsToMe = requestsToMe;
         this.harness = harness;
         this.microservice = microservice;
-        setName(name);
+        this.threadIndex = threadIndex;
         setDaemon(true);
     }
 
@@ -74,7 +75,7 @@ public class RequestToMeThread extends Thread {
             if (request != null) {
                 try {
                     long startTimeMillis = System.currentTimeMillis();
-                    microservice.processRequest(request.requestId, request.serviceNameFrom, request.data);
+                    microservice.processRequest(request.requestId, request.serviceNameFrom, request.data, threadIndex);
                     harness.getProcessor().processRequestMillis((int)(System.currentTimeMillis() - startTimeMillis));
                 } catch (Throwable th) {
                     harness.getLogger().logError("Your microservice threw an exception in processRequest()", th);

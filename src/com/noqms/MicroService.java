@@ -68,8 +68,10 @@ public class MicroService {
      * @param requestId       if non null, a response from you is required
      * @param serviceNameFrom name of the microservice which sent this message
      * @param data            application and microservice specific message data
+     * @param threadIndex     0-based thread number i.e. if noqms.threads is 10 this will be an active number from 0 to
+     *                        9 inclusive. Use this to more easily manage per thread microservice resources if desired.
      */
-    public void processRequest(Long requestId, String serviceNameFrom, byte[] data) {
+    public void processRequest(Long requestId, String serviceNameFrom, byte[] data, int threadIndex) {
         harness.getLogger().logError("A request was received to an unimplemented processRequest()", null);
     }
 
