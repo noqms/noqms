@@ -71,7 +71,7 @@ public class Processor extends Thread {
             Constructor<?> constructor = objectClass.getConstructor();
             microService = (MicroService)constructor.newInstance();
             microService.setHarness(harness);
-            microService.initialize();
+            microService.create();
         } catch (Exception ex) {
             throw new Exception("Failed loading your microservice: " + config.servicePath, ex);
         }
@@ -82,6 +82,7 @@ public class Processor extends Thread {
             requestToMeThread.start();
 
         setDaemon(true);
+        start();
     }
 
     public MicroService getMicroService() {

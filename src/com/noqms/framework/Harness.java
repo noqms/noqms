@@ -63,7 +63,6 @@ public class Harness {
         try {
             myInetAddress = Util.findMyInetAddress();
             serviceUdp = new ServiceUdp(this);
-            serviceUdp.start();
 
             Class<?> objectClass = Class.forName(config.serviceFinderPath);
             Constructor<?> constructor = objectClass.getConstructor(String.class, LogListener.class, Properties.class);
@@ -71,7 +70,6 @@ public class Harness {
             serviceFinder.start();
 
             processor = new Processor(this);
-            processor.start();
         } catch (Throwable th) {
             logger.logError("Start exception", th);
             throw new Exception("Start exception", th);
@@ -124,7 +122,7 @@ public class Harness {
         logger.logInfo("Drained");
     }
 
-    public void stop() {
+    public void die() {
         if (stopped.compareAndSet(false, true)) {
             if (serviceInfoEmitter != null)
                 serviceInfoEmitter.die();

@@ -45,7 +45,7 @@ public class MicroService {
     /**
      * Override this to perform one-time initialization for your microservice regardless of the number of threads.
      */
-    public void initialize() throws Exception {
+    public void create() throws Exception {
     }
 
     /**
@@ -137,18 +137,18 @@ public class MicroService {
     }
 
     /**
-     * Drain the microservice prior to stopping. Takes noqms.serviceUnavailableSeconds to complete. Override this to
-     * implement your own drain, but make sure to also call this super first.
+     * Drain the microservice prior to destruction. Takes noqms.serviceUnavailableSeconds to complete. Override this to
+     * implement your microservice drain logic, if any, making sure to call this super first.
      */
     public void drain() {
         harness.drain();
     }
 
     /**
-     * Stop the microservice. For a cleaner stop, drain beforehand. Override this to implement your own stop, but make
-     * sure to also call this super first.
+     * Destroy the microservice. Override this to implement your microservice destruction logic, making
+     * sure to call this super first.
      */
-    public void stop() {
-        harness.stop();
+    public void destroy() {
+        harness.die();
     }
 }

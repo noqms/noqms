@@ -58,6 +58,7 @@ public class ServiceUdp extends Thread {
         receiveData = new byte[MessageHeader.MAX_BYTES + config.maxMessageInBytes];
 
         setDaemon(true);
+        start();
     }
 
     public void die() {
