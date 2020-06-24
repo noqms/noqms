@@ -48,14 +48,14 @@ public class Harness {
             config = Config.createFromProperties(props);
         } catch (Exception ex) {
             if (externalLogger != null)
-                externalLogger.logError("Noqms: Failed parsing properties: " + ex.getMessage(), null);
+                externalLogger.error("Noqms: Failed parsing properties: " + ex.getMessage(), null);
             else
                 System.err.println("Noqms: Failed parsing properties: " + ex.getMessage());
             throw ex;
         }
 
         logger = new Logger(config.groupName + "." + config.serviceName, externalLogger);
-        logger.logInfo("Starting: " + props);
+        logger.info("Starting: " + props);
 
         serviceInfoEmitter = new ServiceInfoEmitter(this);
         InetAddress myInetAddress = null;
@@ -71,7 +71,7 @@ public class Harness {
 
             processor = new Processor(this);
         } catch (Throwable th) {
-            logger.logError("Start exception", th);
+            logger.error("Start exception", th);
             throw new Exception("Start exception", th);
         }
 
@@ -80,7 +80,7 @@ public class Harness {
         // Time is given to become aware of the other microservices.
         Util.sleepMillis(100 + config.emitterIntervalMillis);
 
-        logger.logInfo("Started: address=" + myInetAddress + " port=" + serviceUdp.getReceivePort() + " group="
+        logger.info("Started: address=" + myInetAddress + " port=" + serviceUdp.getReceivePort() + " group="
                 + config.groupName);
 
         return processor.getMicroService();
@@ -115,11 +115,11 @@ public class Harness {
     }
 
     public void drain() {
-        logger.logInfo("Draining");
+        logger.info("Draining");
         if (serviceInfoEmitter != null)
             serviceInfoEmitter.die();
         Util.sleepMillis(config.serviceUnavailableMillis);
-        logger.logInfo("Drained");
+        logger.info("Drained");
     }
 
     public void die() {
@@ -136,7 +136,7 @@ public class Harness {
             }
             if (serviceUdp != null)
                 serviceUdp.die();
-            logger.logInfo("Stopped");
+            logger.info("Stopped");
             logger.die();
         }
     }

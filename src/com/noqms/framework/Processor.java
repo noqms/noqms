@@ -90,7 +90,7 @@ public class Processor extends Thread {
     }
 
     public void die() {
-        logger.logInfo("RunningStats=" + new RunningStats().get());
+        logger.info("RunningStats=" + new RunningStats().get());
         die.set(true);
         for (RequestToMeThread requestToMeThread : requestToMeThreads)
             requestToMeThread.die();
@@ -112,17 +112,17 @@ public class Processor extends Thread {
             service = harness.getServiceFinder().findService(serviceNameTo);
         } catch (Throwable th) {
             perMinuteStats.failedRequests.incrementAndGet();
-            logger.logError("The pluggable service finder threw an exception in findService()", th);
+            logger.error("The pluggable service finder threw an exception in findService()", th);
             return new ResponseFuture(RequestStatus.ServiceNotFound);
         }
         if (service == null) {
             perMinuteStats.failedRequests.incrementAndGet();
-            logger.logWarn("The sendRequestExpectResponse() serviceNameTo service does not exist: " + serviceNameTo);
+            logger.warn("The sendRequestExpectResponse() serviceNameTo service does not exist: " + serviceNameTo);
             return new ResponseFuture(RequestStatus.ServiceNotFound);
         }
         if (service.elapsedMillis > harness.getConfig().serviceUnavailableMillis) {
             perMinuteStats.failedRequests.incrementAndGet();
-            logger.logWarn("The sendRequestExpectResponse() serviceNameTo service is not responsive: " + serviceNameTo);
+            logger.warn("The sendRequestExpectResponse() serviceNameTo service is not responsive: " + serviceNameTo);
             return new ResponseFuture(RequestStatus.ServiceNotResponsive);
         }
         MessageHeader header = new MessageHeader();
@@ -142,17 +142,17 @@ public class Processor extends Thread {
             service = harness.getServiceFinder().findService(serviceNameTo);
         } catch (Throwable th) {
             perMinuteStats.failedRequests.incrementAndGet();
-            logger.logError("The pluggable service finder threw an exception in findService()", th);
+            logger.error("The pluggable service finder threw an exception in findService()", th);
             return RequestStatus.ServiceNotFound;
         }
         if (service == null) {
             perMinuteStats.failedRequests.incrementAndGet();
-            logger.logWarn("The sendRequest() serviceNameTo service is not found: " + serviceNameTo);
+            logger.warn("The sendRequest() serviceNameTo service is not found: " + serviceNameTo);
             return RequestStatus.ServiceNotFound;
         }
         if (service.elapsedMillis > harness.getConfig().serviceUnavailableMillis) {
             perMinuteStats.failedRequests.incrementAndGet();
-            logger.logWarn("The sendRequest() serviceNameTo service is not responsive: " + serviceNameTo);
+            logger.warn("The sendRequest() serviceNameTo service is not responsive: " + serviceNameTo);
             return RequestStatus.ServiceNotResponsive;
         }
         MessageHeader header = new MessageHeader();
@@ -191,11 +191,11 @@ public class Processor extends Thread {
                 perMinuteStats.backPressureApplied = true;
                 boolean wasPaused = harness.getServiceInfoEmitter().pause();
                 if (!wasPaused)
-                    logger.logInfo("Applying back pressure");
+                    logger.info("Applying back pressure");
             } else {
                 boolean wasPaused = harness.getServiceInfoEmitter().unpause();
                 if (wasPaused)
-                    logger.logInfo("Removing back pressure");
+                    logger.info("Removing back pressure");
             }
 
             while (true) {
@@ -211,7 +211,7 @@ public class Processor extends Thread {
                     RequestToMeExpectingResponse requestToMe = requestsToMeByInternalRequestId
                             .remove(messageFromMe.internalRequestId);
                     if (requestToMe == null) {
-                        logger.logWarn("My response has no or expired request: response=" + gson.toJson(header));
+                        logger.warn("My response has no or expired request: response=" + gson.toJson(header));
                     } else {
                         perMinuteStats.responsesSent++;
                         header.serviceNameTo = requestToMe.header.serviceNameFrom;
@@ -249,7 +249,7 @@ public class Processor extends Thread {
                     // response to me
                     RequestFromMeExpectingResponse requestFromMe = requestsFromMeByRequestId.remove(header.id);
                     if (requestFromMe == null) {
-                        logger.logWarn("A response to me has no or expired request: response=" + gson.toJson(header));
+                        logger.warn("A response to me has no or expired request: response=" + gson.toJson(header));
                     } else {
                         perMinuteStats.responsesReceived++;
                         ResponseFuture.Response response = new ResponseFuture.Response(false, header.serviceNameFrom,
@@ -285,7 +285,7 @@ public class Processor extends Thread {
                     perMinuteStats.responsesDroppedByOthers++;
                     ResponseFuture.Response response = new ResponseFuture.Response(true, null, null, 0, null, null);
                     request.responseFuture.set(response);
-                    logger.logWarn("A request from me was not responded to in time: timeoutMillis="
+                    logger.warn("A request from me was not responded to in time: timeoutMillis="
                             + expiringId.timeoutMillis + ": " + gson.toJson(request.header));
                 }
             }
@@ -297,7 +297,7 @@ public class Processor extends Thread {
                 RequestToMeExpectingResponse request = requestsToMeByInternalRequestId.remove(expiringId.id);
                 if (request != null) {
                     perMinuteStats.responsesDroppedByMe++;
-                    logger.logWarn("A request to me was not responded to in time: timeoutMillis="
+                    logger.warn("A request to me was not responded to in time: timeoutMillis="
                             + expiringId.timeoutMillis + ": " + gson.toJson(request.header));
                 }
             }
@@ -305,7 +305,7 @@ public class Processor extends Thread {
             long currentTimeMillis = System.currentTimeMillis();
             if (currentTimeMillis - lastStatsReportTimeMillis >= ONE_MINUTE_MILLIS) {
                 lastStatsReportTimeMillis = currentTimeMillis;
-                logger.logInfo(
+                logger.info(
                         "PerMinuteStats=" + perMinuteStats.getAndReset() + " RunningStats=" + new RunningStats().get());
             }
 

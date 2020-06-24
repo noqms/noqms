@@ -72,7 +72,7 @@ public class MicroService {
      *                        9 inclusive. Use this to more easily manage per thread microservice resources if desired.
      */
     public void processRequest(Long requestId, String serviceNameFrom, byte[] data, int threadIndex) {
-        harness.getLogger().logError("A request was received to an unimplemented processRequest()", null);
+        harness.getLogger().error("A request was received to an unimplemented processRequest()", null);
     }
 
     /**

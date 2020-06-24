@@ -79,14 +79,14 @@ public class ServiceUdp extends Thread {
                 datagramSocket.receive(packet); // blocking
             } catch (Exception ex) {
                 if (!die.get())
-                    logger.logError("Error receiving service packet", ex);
+                    logger.error("Error receiving service packet", ex);
                 continue;
             }
 
             byte[] packetData = packet.getData();
             int packetLength = packet.getLength();
             if (packetLength < HEADER_LENGTH_BYTES) {
-                logger.logError("Received service message is too small: " + packetLength, null);
+                logger.error("Received service message is too small: " + packetLength, null);
                 continue;
             }
 
@@ -97,17 +97,17 @@ public class ServiceUdp extends Thread {
             try {
                 headerLength = Integer.valueOf(headerLengthString);
             } catch (Exception ex) {
-                logger.logError("Received service message has an invalid header length: " + headerLengthString, null);
+                logger.error("Received service message has an invalid header length: " + headerLengthString, null);
                 continue;
             }
             if (packetLength < HEADER_LENGTH_BYTES + headerLength) {
-                logger.logError("Received service message has insufficient bytes for header: " + packetLength + " < "
+                logger.error("Received service message has insufficient bytes for header: " + packetLength + " < "
                         + (HEADER_LENGTH_BYTES + headerLength), null);
                 continue;
             }
             int serviceDataLength = packetLength - headerLength - HEADER_LENGTH_BYTES;
             if (serviceDataLength > harness.getConfig().maxMessageInBytes) {
-                logger.logError("Received service message length exceeds maximum: " + serviceDataLength + " > "
+                logger.error("Received service message length exceeds maximum: " + serviceDataLength + " > "
                         + harness.getConfig().maxMessageInBytes, null);
                 continue;
             }
@@ -119,16 +119,16 @@ public class ServiceUdp extends Thread {
                         new String(packetData, HEADER_LENGTH_BYTES, headerLength, StandardCharsets.UTF_8),
                         MessageHeader.class);
             } catch (Exception ex) {
-                logger.logError("Unable to deserialize received service message header", ex);
+                logger.error("Unable to deserialize received service message header", ex);
                 continue;
             }
             if (header.serviceNameFrom == null || header.serviceNameFrom.isBlank() || header.serviceNameTo == null
                     || header.serviceNameTo.isBlank() || (header.id != null && header.id <= 0)) {
-                logger.logError("Bad service message received: " + gson.toJson(header), null);
+                logger.error("Bad service message received: " + gson.toJson(header), null);
                 continue;
             }
             if (!header.serviceNameTo.equals(harness.getConfig().serviceName)) {
-                logger.logError("Received service message was intended for a different service: " + header.serviceNameTo
+                logger.error("Received service message was intended for a different service: " + header.serviceNameTo
                         + " != " + harness.getConfig().serviceName, null);
                 continue;
             }
@@ -148,7 +148,7 @@ public class ServiceUdp extends Thread {
     public boolean send(MessageHeader header, byte[] data, InetAddress addressTo, int portTo) {
         int dataLength = data == null ? 0 : data.length;
         if (dataLength > harness.getConfig().maxMessageOutBytes) {
-            logger.logError("Sent message length exceeds maximum: " + dataLength + " > "
+            logger.error("Sent message length exceeds maximum: " + dataLength + " > "
                     + harness.getConfig().maxMessageOutBytes, null);
             return false;
         }
@@ -156,7 +156,7 @@ public class ServiceUdp extends Thread {
         byte[] headerBytes = gson.toJson(header).getBytes(StandardCharsets.UTF_8);
         int headerLength = headerBytes.length;
         if (headerLength > MessageHeader.MAX_BYTES) {
-            logger.logError("Sent header length exceeds maximum: " + headerLength + " > " + MessageHeader.MAX_BYTES,
+            logger.error("Sent header length exceeds maximum: " + headerLength + " > " + MessageHeader.MAX_BYTES,
                     null);
             return false;
         }
@@ -171,7 +171,7 @@ public class ServiceUdp extends Thread {
         try {
             datagramSocket.send(new DatagramPacket(udpMessage, udpMessage.length, addressTo, portTo));
         } catch (Exception ex) {
-            logger.logError("Error sending service packet", ex);
+            logger.error("Error sending service packet", ex);
             return false;
         }
 

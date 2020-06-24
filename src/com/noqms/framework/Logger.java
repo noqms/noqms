@@ -37,22 +37,22 @@ public class Logger extends Thread implements LogListener {
     }
 
     @Override
-    public void logDebug(String text) {
+    public void debug(String text) {
         addEntry(Level.DEBUG, text, null);
     }
 
     @Override
-    public void logInfo(String text) {
+    public void info(String text) {
         addEntry(Level.INFO, text, null);
     }
 
     @Override
-    public void logWarn(String text) {
+    public void warn(String text) {
         addEntry(Level.WARN, text, null);
     }
 
     @Override
-    public void logError(String text, Throwable cause) {
+    public void error(String text, Throwable cause) {
         addEntry(Level.ERROR, text, cause);
     }
 
@@ -99,16 +99,16 @@ public class Logger extends Thread implements LogListener {
                     try {
                         switch (logEntry.level) {
                         case DEBUG:
-                            externalLogger.logDebug(text);
+                            externalLogger.debug(text);
                             break;
                         case INFO:
-                            externalLogger.logInfo(text);
+                            externalLogger.info(text);
                             break;
                         case WARN:
-                            externalLogger.logWarn(text);
+                            externalLogger.warn(text);
                             break;
                         case ERROR:
-                            externalLogger.logError(text, cause);
+                            externalLogger.error(text, cause);
                             break;
                         }
                     } catch (Throwable th) {

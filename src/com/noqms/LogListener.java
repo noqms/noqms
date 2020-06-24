@@ -27,21 +27,21 @@ public interface LogListener {
     /**
      * @param text descriptive text
      */
-    public void logDebug(String text);
+    public void debug(String text);
 
     /**
      * @param text descriptive text
      */
-    public void logInfo(String text);
+    public void info(String text);
 
     /**
      * @param text descriptive text
      */
-    public void logWarn(String text);
+    public void warn(String text);
 
     /**
      * @param text  descriptive text
      * @param cause may be null
      */
-    public void logError(String text, Throwable cause);
+    public void error(String text, Throwable cause);
 }

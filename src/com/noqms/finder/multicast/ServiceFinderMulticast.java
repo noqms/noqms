@@ -92,7 +92,7 @@ public class ServiceFinderMulticast extends ServiceFinder {
                     multicastSocket.receive(packet); // blocking
                 } catch (Exception ex) {
                     if (!die.get())
-                        logger.logError("Error receiving service finder multicast packet", ex);
+                        logger.error("Error receiving service finder multicast packet", ex);
                     continue;
                 }
 
@@ -101,12 +101,12 @@ public class ServiceFinderMulticast extends ServiceFinder {
                     message = gson.fromJson(new String(packet.getData(), 0, packet.getLength(), StandardCharsets.UTF_8),
                             ModelMulticast.class);
                 } catch (Exception ex) {
-                    logger.logError("Unable to deserialize received service finder multicast message", ex);
+                    logger.error("Unable to deserialize received service finder multicast message", ex);
                     continue;
                 }
                 if (message.serviceName == null || message.serviceName.isBlank() || message.timeoutMillis <= 0
                         || message.groupName == null) {
-                    logger.logError("Bad service finder multicast message received: " + gson.toJson(message), null);
+                    logger.error("Bad service finder multicast message received: " + gson.toJson(message), null);
                     continue;
                 }
 
@@ -116,7 +116,7 @@ public class ServiceFinderMulticast extends ServiceFinder {
                 ServiceInstance service = new ServiceInstance(message.address, message.port, message.timeoutMillis,
                         System.currentTimeMillis());
                 if (serviceNameToService.put(message.serviceName, service) == null)
-                    logger.logInfo("New microservice multicast received: name=" + message.serviceName + " address="
+                    logger.info("New microservice multicast received: name=" + message.serviceName + " address="
                             + message.address + " port=" + message.port);
             }
         }
@@ -135,7 +135,7 @@ public class ServiceFinderMulticast extends ServiceFinder {
         int dataLength = data.length;
 
         if (dataLength > ModelMulticast.MAX_BYTES) {
-            logger.logError("Send service finder multicast message length exceeds maximum: " + dataLength + " > "
+            logger.error("Send service finder multicast message length exceeds maximum: " + dataLength + " > "
                     + ModelMulticast.MAX_BYTES, null);
             return;
         }
@@ -143,7 +143,7 @@ public class ServiceFinderMulticast extends ServiceFinder {
         try {
             multicastSocket.send(new DatagramPacket(data, dataLength, multicastAddress, multicastPort));
         } catch (Exception ex) {
-            logger.logError("Error sending service finder multicast packet", ex);
+            logger.error("Error sending service finder multicast packet", ex);
         }
     }
 
