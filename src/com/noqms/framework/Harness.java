@@ -78,7 +78,7 @@ public class Harness {
         serviceInfoEmitter.start();
 
         // Time is given to become aware of the other microservices.
-        Util.sleepMillis(100 + config.emitterIntervalMillis);
+        Util.sleepMillis(3 * config.emitterIntervalMillis / 2);
 
         logger.info("Started: address=" + myInetAddress + " port=" + serviceUdp.getReceivePort() + " group="
                 + config.groupName);

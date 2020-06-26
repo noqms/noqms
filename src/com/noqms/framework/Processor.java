@@ -185,9 +185,7 @@ public class Processor extends Thread {
 
         while (!die.get()) {
             int requestsToMeBacklog = getRequestsToMeBacklog();
-            int backPressureThreshold = 1
-                    + (int)(config.threads * ((float)config.timeoutMillis / config.typicalMillis));
-            if (requestsToMeBacklog > backPressureThreshold) {
+            if (requestsToMeBacklog > config.threads) {
                 perMinuteStats.backPressureApplied = true;
                 boolean wasPaused = harness.getServiceInfoEmitter().pause();
                 if (!wasPaused)

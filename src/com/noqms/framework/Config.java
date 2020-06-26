@@ -60,10 +60,10 @@ public class Config {
         String serviceFinderPath = loadString(props, Starter.PROP_SERVICE_FINDER_PATH, DEFAULT_SERVICE_FINDER_PATH);
         int dataPort = loadInt(props, Starter.PROP_DATA_PORT, 0);
 
-        if (threads <= 0)
-            throw new Exception("Property noqms.threads must positive: " + threads);
-        if (timeoutMillis <= 0)
-            throw new Exception("Property noqms.timeoutMillis must be positive: " + timeoutMillis);
+        if (threads < 0)
+            throw new Exception("Property noqms.threads must zero or more: " + threads);
+        if (timeoutMillis < 0)
+            throw new Exception("Property noqms.timeoutMillis must be zero or more: " + timeoutMillis);
         if (serviceName.length() > MAX_STRING_LENGTH)
             throw new Exception("Property noqms.serviceName length must not be greater than " + MAX_STRING_LENGTH + ": "
                     + serviceName);
@@ -71,10 +71,10 @@ public class Config {
             throw new Exception("Property noqms.maxMessageOutBytes must be zero or more: " + maxMessageOutBytes);
         if (maxMessageInBytes < 0)
             throw new Exception("Property noqms.maxMessageInBytes must be zero or more: " + maxMessageInBytes);
-        if (typicalMillis <= 0)
-            throw new Exception("Property noqms.typicalMillis must be positive: " + typicalMillis);
+        if (typicalMillis < 0)
+            throw new Exception("Property noqms.typicalMillis must be zero or more: " + typicalMillis);
         if (timeoutMillis < typicalMillis)
-            throw new Exception("Property noqms.timeoutMillis must be greater than noqms.typicalMillis: "
+            throw new Exception("Property noqms.timeoutMillis must not be less than noqms.typicalMillis: "
                     + timeoutMillis + ", " + typicalMillis);
         if (groupName.length() > MAX_STRING_LENGTH)
             throw new Exception(

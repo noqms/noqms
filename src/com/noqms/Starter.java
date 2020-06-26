@@ -54,15 +54,13 @@ public class Starter {
      * 
      * @param noqms.threads                   number of threads simultaneously executing your microservice code -
      *                                        increase to fully utilize your resources (cpu/memory/disk) - consider 10s
-     *                                        or 100s per core
+     *                                        or 100s per core - can be 0 if not receiving requests
      * 
      * @param noqms.typicalMillis             typical execution time of your microservice under normal circumstances -
-     *                                        the back pressure threshold is roughly determined by threads *
-     *                                        (timeoutMillis / typicalMillis)
+     *                                        can be 0 if not receiving requests
      * 
      * @param noqms.timeoutMillis             time after which unanswered requests to your microservice are considered
-     *                                        failed for whatever reason - the back pressure threshold is roughly
-     *                                        determined by threads * (timeoutMillis / typicalMillis)
+     *                                        failed for whatever reason - can be 0 if not receiving requests
      * 
      * @param noqms.maxMessageOutBytes        max bytes for outgoing messages from your microservice, including both
      *                                        requests and responses from you

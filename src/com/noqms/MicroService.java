@@ -137,16 +137,16 @@ public class MicroService {
     }
 
     /**
-     * Drain the microservice prior to destruction. Takes noqms.serviceUnavailableSeconds to complete. Override this to
-     * implement your microservice drain logic, if any, making sure to call this super first.
+     * Drain the microservice prior to destruction. Takes on the order of noqms.serviceUnavailableSeconds to complete.
+     * Override this to implement your microservice drain logic, if any, making sure to call this super first.
      */
     public void drain() {
         harness.drain();
     }
 
     /**
-     * Destroy the microservice. Override this to implement your microservice destruction logic, making
-     * sure to call this super first.
+     * Destroy the microservice. Override this to implement your microservice destruction logic, making sure to call
+     * this super first.
      */
     public void destroy() {
         harness.die();
