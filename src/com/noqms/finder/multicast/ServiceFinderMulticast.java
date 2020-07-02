@@ -104,7 +104,7 @@ public class ServiceFinderMulticast extends ServiceFinder {
                     logger.error("Unable to deserialize received service finder multicast message", ex);
                     continue;
                 }
-                if (message.serviceName == null || message.serviceName.isBlank() || message.timeoutMillis <= 0
+                if (message.serviceName == null || message.serviceName.isBlank() || message.timeoutMillis < 0
                         || message.groupName == null) {
                     logger.error("Bad service finder multicast message received: " + gson.toJson(message), null);
                     continue;
@@ -115,9 +115,7 @@ public class ServiceFinderMulticast extends ServiceFinder {
 
                 ServiceInstance service = new ServiceInstance(message.address, message.port, message.timeoutMillis,
                         System.currentTimeMillis());
-                if (serviceNameToService.put(message.serviceName, service) == null)
-                    logger.info("New microservice multicast received: name=" + message.serviceName + " address="
-                            + message.address + " port=" + message.port);
+                serviceNameToService.put(message.serviceName, service);
             }
         }
     }

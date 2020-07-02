@@ -31,7 +31,6 @@ public class Starter {
     public static final String PROP_SERVICE_NAME = "noqms.serviceName";
     public static final String PROP_SERVICE_PATH = "noqms.servicePath";
     public static final String PROP_THREADS = "noqms.threads";
-    public static final String PROP_TYPICAL_MILLIS = "noqms.typicalMillis";
     public static final String PROP_TIMEOUT_MILLIS = "noqms.timeoutMillis";
     public static final String PROP_MAX_MESSAGE_OUT_BYTES = "noqms.maxMessageOutBytes";
     public static final String PROP_MAX_MESSAGE_IN_BYTES = "noqms.maxMessageInBytes";
@@ -55,9 +54,6 @@ public class Starter {
      * @param noqms.threads                   number of threads simultaneously executing your microservice code -
      *                                        increase to fully utilize your resources (cpu/memory/disk) - consider 10s
      *                                        or 100s per core - can be 0 if not receiving requests
-     * 
-     * @param noqms.typicalMillis             typical execution time of your microservice under normal circumstances -
-     *                                        can be 0 if not receiving requests
      * 
      * @param noqms.timeoutMillis             time after which unanswered requests to your microservice are considered
      *                                        failed for whatever reason - can be 0 if not receiving requests

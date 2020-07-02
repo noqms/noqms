@@ -34,7 +34,7 @@ single packet limits of under 64K. So write your microservices accordingly, thin
 into a <i>macro</i>service before applying workarounds for that limit. 
 
 Timeouts are first class citizens in this architecture. With each microservice the application developer specifies the
-typicalMillis and the timeoutMillis for that microservices. The framework handles the rest - notifying a requester when
+timeoutMillis for that microservices. The framework handles the rest - notifying a requester when
 a response has timed out, for example. Waiting for a response will not take longer than the receiving side's reported
 timeout, and the response information indicates whether a timeout occured. The microservice can handle the timeout 
 if the way to handle it at its level is clear, or simply pass it up the chain, sending an application defined status code back 

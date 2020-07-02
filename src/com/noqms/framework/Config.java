@@ -38,7 +38,6 @@ public class Config {
     public final String servicePath;
     public final int maxMessageOutBytes;
     public final int maxMessageInBytes;
-    public final int typicalMillis;
     public final int emitterIntervalMillis;
     public final int serviceUnavailableMillis;
     public final String serviceFinderPath;
@@ -51,7 +50,6 @@ public class Config {
         String servicePath = loadString(props, Starter.PROP_SERVICE_PATH, null);
         int maxMessageOutBytes = loadInt(props, Starter.PROP_MAX_MESSAGE_OUT_BYTES, null);
         int maxMessageInBytes = loadInt(props, Starter.PROP_MAX_MESSAGE_IN_BYTES, null);
-        int typicalMillis = loadInt(props, Starter.PROP_TYPICAL_MILLIS, null);
         String groupName = loadString(props, Starter.PROP_GROUP_NAME, null);
         int emitterIntervalSeconds = loadInt(props, Starter.PROP_EMITTER_INTERVAL_SECONDS,
                 DEFAULT_EMITTER_INTERVAL_SECONDS);
@@ -71,11 +69,6 @@ public class Config {
             throw new Exception("Property noqms.maxMessageOutBytes must be zero or more: " + maxMessageOutBytes);
         if (maxMessageInBytes < 0)
             throw new Exception("Property noqms.maxMessageInBytes must be zero or more: " + maxMessageInBytes);
-        if (typicalMillis < 0)
-            throw new Exception("Property noqms.typicalMillis must be zero or more: " + typicalMillis);
-        if (timeoutMillis < typicalMillis)
-            throw new Exception("Property noqms.timeoutMillis must not be less than noqms.typicalMillis: "
-                    + timeoutMillis + ", " + typicalMillis);
         if (groupName.length() > MAX_STRING_LENGTH)
             throw new Exception(
                     "Property noqms.groupName length must not be greater than " + MAX_STRING_LENGTH + ": " + groupName);
@@ -92,12 +85,12 @@ public class Config {
             throw new Exception("Property noqms.dataPort must be positive and no more than 65535: " + dataPort);
 
         return new Config(threads, timeoutMillis, serviceName, servicePath, maxMessageOutBytes, maxMessageInBytes,
-                typicalMillis, groupName, emitterIntervalSeconds, serviceUnavailableSeconds, serviceFinderPath,
+                groupName, emitterIntervalSeconds, serviceUnavailableSeconds, serviceFinderPath,
                 dataPort);
     }
 
     private Config(int threads, int timeoutMillis, String serviceName, String servicePath, int maxMessageOutBytes,
-            int maxMessageInBytes, int typicalMillis, String groupName, int emitterIntervalSeconds,
+            int maxMessageInBytes, String groupName, int emitterIntervalSeconds,
             int serviceUnavailableSeconds, String serviceFinderPath, Integer dataPort) {
         this.threads = threads;
         this.timeoutMillis = timeoutMillis;
@@ -105,7 +98,6 @@ public class Config {
         this.servicePath = servicePath;
         this.maxMessageOutBytes = maxMessageOutBytes;
         this.maxMessageInBytes = maxMessageInBytes;
-        this.typicalMillis = typicalMillis;
         this.groupName = groupName;
         this.emitterIntervalMillis = 1000 * emitterIntervalSeconds;
         this.serviceUnavailableMillis = 1000 * serviceUnavailableSeconds;
