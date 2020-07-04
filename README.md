@@ -20,8 +20,7 @@ This allows you to adjust to better take advantage of the environment's resource
 Outside of the single potentially multi-threaded microservice instance, the framework supports discovering and
 utilizing all microservice instances that are making their presence and availability known. 
 This yields scalability and also better reliability in the event 
-of failure as you would expect. A NoQMS microservice can also run within a container orchestration system
-and benefit from all the goodies that brings just like traditional microservices. 
+of failure as you would expect. 
 
 UDP is an excellent choice for microservice messages.
 Utilized correctly, it scales far beyond TCP for obvious reasons. UDP is also very reliable
@@ -40,6 +39,10 @@ timeout, and the response information indicates whether a timeout occured. The m
 if the way to handle it at its level is clear, or simply pass it up the chain, sending an application defined status code back 
 to the microservice that requested the data from <i>it</i>.  Programming for and explicity handling more failure 
 cases - which includes timeouts - makes for a more robust system. 
+
+The framework also has a built in mechanism for back pressure. The request rate to an overloaded instance of a microservice 
+is automatically lightened if the number of waiting messages in its internal queue exceeds the number
+of threads it has been assigned to process those messages.
 
 One benefit of not having a centralized queue - and of the framework being capable of instantiation any number of
 microservices locally and within the same process (not the intended production scenario) - is that the development 

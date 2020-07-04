@@ -68,8 +68,8 @@ public class MicroService {
      * @param requestId       if non null, a response from you is required
      * @param serviceNameFrom name of the microservice which sent this message
      * @param data            application and microservice specific message data
-     * @param threadIndex     0-based thread number i.e. if noqms.threads is 10 this will be an active number from 0 to
-     *                        9 inclusive. Use this to more easily manage per thread microservice resources if desired.
+     * @param threadIndex     0-based thread number i.e. if noqms.threads is 10 this will be an active number from 0 to 9
+     *                        inclusive. Use this to more easily manage per thread microservice resources if desired.
      */
     public void processRequest(Long requestId, String serviceNameFrom, byte[] data, int threadIndex) {
         harness.getLogger().error("A request was received to an unimplemented processRequest()", null);
@@ -78,21 +78,21 @@ public class MicroService {
     /**
      * Call this from your processRequest() to respond to a microservice message.
      * 
-     * @param requestId   non null requestId value passed to you by processRequest()
+     * @param requestId   requestId value passed to you by processRequest()
      * @param code        application defined message status code
      * @param userMessage application defined user presentable message
      * @param nerdDetail  application defined technical details
      * @param data        application and microservice specific message data
      */
     public void sendResponse(Long requestId, Integer code, String userMessage, String nerdDetail, byte[] data) {
-        if (requestId == null || requestId <= 0)
+        if (requestId == null)
+            return; // a response was not requested
+        if (requestId <= 0)
             throw new IllegalArgumentException("Parameter requestId must be positive");
         if (userMessage != null && userMessage.length() > MAX_STRING_LENGTH)
-            throw new IllegalArgumentException(
-                    "Parameter userMessage length must be no greater than " + MAX_STRING_LENGTH);
+            throw new IllegalArgumentException("Parameter userMessage length must be no greater than " + MAX_STRING_LENGTH);
         if (nerdDetail != null && nerdDetail.length() > MAX_STRING_LENGTH)
-            throw new IllegalArgumentException(
-                    "Parameter nerdDetail length must be no greater than " + MAX_STRING_LENGTH);
+            throw new IllegalArgumentException("Parameter nerdDetail length must be no greater than " + MAX_STRING_LENGTH);
         if (data != null && data.length > MAX_DATA_LENGTH)
             throw new IllegalArgumentException("Parameter data length must be no greater than " + MAX_DATA_LENGTH);
         harness.getProcessor().sendResponse(requestId, code, userMessage, nerdDetail, data);
@@ -109,16 +109,15 @@ public class MicroService {
         if (serviceNameTo == null || serviceNameTo.isBlank())
             throw new IllegalArgumentException("Parameter serviceNameTo is required");
         if (serviceNameTo.length() > MAX_STRING_LENGTH)
-            throw new IllegalArgumentException(
-                    "Parameter serviceNameTo length must be no greater than " + MAX_STRING_LENGTH);
+            throw new IllegalArgumentException("Parameter serviceNameTo length must be no greater than " + MAX_STRING_LENGTH);
         if (data != null && data.length > MAX_DATA_LENGTH)
             throw new IllegalArgumentException("Parameter data length must be no greater than " + MAX_DATA_LENGTH);
         return harness.getProcessor().sendRequest(serviceNameTo, data);
     }
 
     /**
-     * Make a request of a microservice and require a response. Returns immediately. Immediately check the request
-     * status of the call with ResponseFuture.getRequestStatus(). Deal with the ResponseFuture in your code later using
+     * Make a request of a microservice and require a response. Returns immediately. Immediately check the request status of
+     * the call with ResponseFuture.getRequestStatus(). Deal with the ResponseFuture in your code later using
      * ResponseFuture.await() when resolution of the response is desired.
      * 
      * @param serviceNameTo name of the destination microservice
@@ -129,8 +128,7 @@ public class MicroService {
         if (serviceNameTo == null || serviceNameTo.isBlank())
             throw new IllegalArgumentException("Parameter serviceNameTo is required");
         if (serviceNameTo.length() > MAX_STRING_LENGTH)
-            throw new IllegalArgumentException(
-                    "Parameter serviceNameTo length must be no greater than " + MAX_STRING_LENGTH);
+            throw new IllegalArgumentException("Parameter serviceNameTo length must be no greater than " + MAX_STRING_LENGTH);
         if (data != null && data.length > MAX_DATA_LENGTH)
             throw new IllegalArgumentException("Parameter data length must be no greater than " + MAX_DATA_LENGTH);
         return harness.getProcessor().sendRequestExpectResponse(serviceNameTo, data);
@@ -145,8 +143,8 @@ public class MicroService {
     }
 
     /**
-     * Destroy the microservice. Override this to implement your microservice destruction logic, making sure to call
-     * this super first.
+     * Destroy the microservice. Override this to implement your microservice destruction logic, making sure to call this
+     * super first.
      */
     public void destroy() {
         harness.die();
