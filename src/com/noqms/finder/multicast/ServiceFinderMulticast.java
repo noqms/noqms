@@ -25,7 +25,6 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.google.gson.Gson;
 import com.noqms.LogListener;
 import com.noqms.ServiceFinder;
 import com.noqms.ServiceInfo;
@@ -43,7 +42,6 @@ public class ServiceFinderMulticast extends ServiceFinder {
 
     private final MulticastSocket multicastSocket;
     private final byte[] receiveData;
-    private final Gson gson = new Gson();
     private final Map<String, ServiceInstance> serviceNameToService = new ConcurrentHashMap<>();
     private final InetAddress multicastAddress;
     private final int multicastPort;
@@ -54,8 +52,7 @@ public class ServiceFinderMulticast extends ServiceFinder {
 
         multicastAddress = InetAddress.getByName(MULTICAST_ADDRESS);
 
-        // It is not critical that the port be unique among groups but it will help cut down on tossed multicast
-        // messages.
+        // It is not critical that the port be unique among groups but it will help cut down on tossed multicast messages.
         multicastPort = MULTICAST_PORT_START + (Math.abs(groupName.hashCode()) % MULTICAST_PORT_SPAN);
 
         multicastSocket = new MulticastSocket(multicastPort);
@@ -98,23 +95,20 @@ public class ServiceFinderMulticast extends ServiceFinder {
 
                 ModelMulticast message = null;
                 try {
-                    message = gson.fromJson(new String(packet.getData(), 0, packet.getLength(), StandardCharsets.UTF_8),
-                            ModelMulticast.class);
+                    message = Util.jsonObjectFromBytes(packet.getData(), packet.getLength(), ModelMulticast.class);
                 } catch (Exception ex) {
-                    logger.error("Unable to deserialize received service finder multicast message", ex);
+                    logger.error("Unable to deserialize received service finder multicast message: " + new String(packet.getData(), 0, packet.getLength(), StandardCharsets.UTF_8), ex);
                     continue;
                 }
-                if (message.serviceName == null || message.serviceName.isBlank() || message.timeoutMillis < 0
-                        || message.groupName == null) {
-                    logger.error("Bad service finder multicast message received: " + gson.toJson(message), null);
+                if (message.serviceName == null || message.serviceName.isBlank() || message.timeoutMillis < 0 || message.groupName == null) {
+                    logger.error("Bad service finder multicast message received: " + Util.jsonStringFromObject(message), null);
                     continue;
                 }
 
                 if (!message.groupName.equals(groupName))
                     continue;
 
-                ServiceInstance service = new ServiceInstance(message.address, message.port, message.timeoutMillis,
-                        System.currentTimeMillis());
+                ServiceInstance service = new ServiceInstance(message.address, message.port, message.timeoutMillis, System.currentTimeMillis());
                 serviceNameToService.put(message.serviceName, service);
             }
         }
@@ -129,12 +123,11 @@ public class ServiceFinderMulticast extends ServiceFinder {
         message.port = port;
         message.timeoutMillis = myTimeoutMillis;
 
-        byte[] data = gson.toJson(message).getBytes(StandardCharsets.UTF_8);
+        byte[] data = Util.jsonBytesFromObject(message);
         int dataLength = data.length;
 
         if (dataLength > ModelMulticast.MAX_BYTES) {
-            logger.error("Send service finder multicast message length exceeds maximum: " + dataLength + " > "
-                    + ModelMulticast.MAX_BYTES, null);
+            logger.error("Send service finder multicast message length exceeds maximum: " + dataLength + " > " + ModelMulticast.MAX_BYTES, null);
             return;
         }
 
@@ -150,8 +143,7 @@ public class ServiceFinderMulticast extends ServiceFinder {
         ServiceInstance service = serviceNameToService.get(serviceNameTo);
         if (service == null)
             return null;
-        return new ServiceInfo(service.address, service.port, service.timeoutMillis,
-                (int)(System.currentTimeMillis() - service.lastTimeMillis));
+        return new ServiceInfo(service.address, service.port, service.timeoutMillis, (int)(System.currentTimeMillis() - service.lastTimeMillis));
     }
 
     private class ServiceInstance {

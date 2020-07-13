@@ -31,6 +31,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.noqms.LogListener;
 import com.noqms.MicroService;
 import com.noqms.RequestStatus;
@@ -57,7 +58,6 @@ public class Processor extends Thread {
     private final Map<Long, RequestToMeExpectingResponse> requestsToMeByInternalRequestId = new ConcurrentHashMap<>();
     private final DelayQueue<ExpiringId> expiringRequestsFromMe = new DelayQueue<>();
     private final DelayQueue<ExpiringId> expiringRequestsToMe = new DelayQueue<>();
-    private final Gson gson = new Gson();
     private final PerMinuteStats perMinuteStats = new PerMinuteStats();
     private final AtomicBoolean die = new AtomicBoolean();
 
@@ -90,7 +90,6 @@ public class Processor extends Thread {
     }
 
     public void die() {
-        logger.info("RunningStats=" + new RunningStats().get());
         die.set(true);
         for (RequestToMeThread requestToMeThread : requestToMeThreads)
             requestToMeThread.die();
@@ -98,8 +97,7 @@ public class Processor extends Thread {
 
     // Deal with the data and return quickly.
     // Both requests to me and response to me come through here.
-    public void acceptMessageToMe(MessageHeader header, byte[] data, InetAddress serviceAddressFrom,
-            int servicePortFrom) {
+    public void acceptMessageToMe(MessageHeader header, byte[] data, InetAddress serviceAddressFrom, int servicePortFrom) {
         synchronized (messagesToMe) {
             messagesToMe.add(new MessageToMe(header, data, serviceAddressFrom, servicePortFrom));
             messagesToMe.notify();
@@ -206,16 +204,14 @@ public class Processor extends Thread {
                 MessageHeader header = messageFromMe.header;
                 if (header.responseMeta != null) {
                     // response from me
-                    RequestToMeExpectingResponse requestToMe = requestsToMeByInternalRequestId
-                            .remove(messageFromMe.internalRequestId);
+                    RequestToMeExpectingResponse requestToMe = requestsToMeByInternalRequestId.remove(messageFromMe.internalRequestId);
                     if (requestToMe == null) {
-                        logger.warn("My response has no or expired request: response=" + gson.toJson(header));
+                        logger.warn("My response has no or expired request: response=" + Util.jsonStringFromObject(header));
                     } else {
                         perMinuteStats.responsesSent++;
                         header.serviceNameTo = requestToMe.header.serviceNameFrom;
                         header.id = requestToMe.header.id;
-                        boolean success = harness.getServiceUdp().send(header, messageFromMe.data,
-                                requestToMe.serviceAddressFrom, requestToMe.servicePortFrom);
+                        boolean success = harness.getServiceUdp().send(header, messageFromMe.data, requestToMe.serviceAddressFrom, requestToMe.servicePortFrom);
                         if (!success)
                             perMinuteStats.failedResponses.incrementAndGet();
                     }
@@ -224,12 +220,10 @@ public class Processor extends Thread {
                     perMinuteStats.requestsSent++;
                     if (header.id != null) {
                         // request from me expecting a response
-                        requestsFromMeByRequestId.put(header.id,
-                                new RequestFromMeExpectingResponse(header, messageFromMe.responseFuture));
+                        requestsFromMeByRequestId.put(header.id, new RequestFromMeExpectingResponse(header, messageFromMe.responseFuture));
                         expiringRequestsFromMe.add(new ExpiringId(header.id, messageFromMe.serviceTo.timeoutMillis));
                     }
-                    boolean success = harness.getServiceUdp().send(header, messageFromMe.data,
-                            messageFromMe.serviceTo.address, messageFromMe.serviceTo.port);
+                    boolean success = harness.getServiceUdp().send(header, messageFromMe.data, messageFromMe.serviceTo.address, messageFromMe.serviceTo.port);
                     if (!success)
                         perMinuteStats.failedRequests.incrementAndGet();
                 }
@@ -247,11 +241,10 @@ public class Processor extends Thread {
                     // response to me
                     RequestFromMeExpectingResponse requestFromMe = requestsFromMeByRequestId.remove(header.id);
                     if (requestFromMe == null) {
-                        logger.warn("A response to me has no or expired request: response=" + gson.toJson(header));
+                        logger.warn("A response to me has no or expired request: response=" + Util.jsonStringFromObject(header));
                     } else {
                         perMinuteStats.responsesReceived++;
-                        ResponseFuture.Response response = new ResponseFuture.Response(false, header.serviceNameFrom,
-                                messageToMe.data, header.responseMeta.code, header.responseMeta.userMessage,
+                        ResponseFuture.Response response = new ResponseFuture.Response(false, header.serviceNameFrom, messageToMe.data, header.responseMeta.code, header.responseMeta.userMessage,
                                 header.responseMeta.nerdDetail);
                         requestFromMe.responseFuture.set(response);
                     }
@@ -261,12 +254,10 @@ public class Processor extends Thread {
                     Long internalRequestId = requestIdGenerator.incrementAndGet();
                     if (header.id != null) {
                         // request to me expecting a response
-                        requestsToMeByInternalRequestId.put(internalRequestId, new RequestToMeExpectingResponse(header,
-                                messageToMe.serviceAddressFrom, messageToMe.servicePortFrom));
+                        requestsToMeByInternalRequestId.put(internalRequestId, new RequestToMeExpectingResponse(header, messageToMe.serviceAddressFrom, messageToMe.servicePortFrom));
                         expiringRequestsToMe.add(new ExpiringId(internalRequestId, config.timeoutMillis));
                     }
-                    RequestToMeThread.Request request = new RequestToMeThread.Request(internalRequestId,
-                            header.serviceNameFrom, messageToMe.data);
+                    RequestToMeThread.Request request = new RequestToMeThread.Request(internalRequestId, header.serviceNameFrom, messageToMe.data);
                     synchronized (requestsToMe) {
                         requestsToMe.addLast(request);
                         requestsToMe.notify();
@@ -283,8 +274,7 @@ public class Processor extends Thread {
                     perMinuteStats.responsesDroppedByOthers++;
                     ResponseFuture.Response response = new ResponseFuture.Response(true, null, null, 0, null, null);
                     request.responseFuture.set(response);
-                    logger.warn("A request from me was not responded to in time: timeoutMillis="
-                            + expiringId.timeoutMillis + ": " + gson.toJson(request.header));
+                    logger.warn("A request from me was not responded to in time: timeoutMillis=" + expiringId.timeoutMillis + ": " + Util.jsonStringFromObject(request.header));
                 }
             }
 
@@ -295,16 +285,14 @@ public class Processor extends Thread {
                 RequestToMeExpectingResponse request = requestsToMeByInternalRequestId.remove(expiringId.id);
                 if (request != null) {
                     perMinuteStats.responsesDroppedByMe++;
-                    logger.warn("A request to me was not responded to in time: timeoutMillis="
-                            + expiringId.timeoutMillis + ": " + gson.toJson(request.header));
+                    logger.warn("A request to me was not responded to in time: timeoutMillis=" + expiringId.timeoutMillis + ": " + Util.jsonStringFromObject(request.header));
                 }
             }
 
             long currentTimeMillis = System.currentTimeMillis();
             if (currentTimeMillis - lastStatsReportTimeMillis >= ONE_MINUTE_MILLIS) {
                 lastStatsReportTimeMillis = currentTimeMillis;
-                logger.info(
-                        "PerMinuteStats=" + perMinuteStats.getAndReset() + " RunningStats=" + new RunningStats().get());
+                logger.info("Stats=" + perMinuteStats.getAndReset());
             }
 
             Util.sleepMillis(1); // very responsive but not burdensome during inactivity
@@ -324,8 +312,7 @@ public class Processor extends Thread {
         private final ServiceInfo serviceTo;
         private final Long internalRequestId;
 
-        private MessageFromMe(MessageHeader header, byte[] data, ResponseFuture responseFuture, ServiceInfo serviceTo,
-                Long internalRequestId) {
+        private MessageFromMe(MessageHeader header, byte[] data, ResponseFuture responseFuture, ServiceInfo serviceTo, Long internalRequestId) {
             this.header = header;
             this.data = data;
             this.responseFuture = responseFuture;
@@ -363,8 +350,7 @@ public class Processor extends Thread {
         private final InetAddress serviceAddressFrom;
         private final int servicePortFrom;
 
-        private RequestToMeExpectingResponse(MessageHeader header, InetAddress serviceAddressFrom,
-                int servicePortFrom) {
+        private RequestToMeExpectingResponse(MessageHeader header, InetAddress serviceAddressFrom, int servicePortFrom) {
             this.header = header;
             this.serviceAddressFrom = serviceAddressFrom;
             this.servicePortFrom = servicePortFrom;
@@ -400,22 +386,6 @@ public class Processor extends Thread {
 
     }
 
-    @SuppressWarnings("unused")
-    private class RunningStats {
-        private int requestsToMeBacklog;
-        private long memoryUsedMB;
-        private int memoryUsedPercent;
-        private int threadCount;
-
-        private String get() {
-            requestsToMeBacklog = getRequestsToMeBacklog();
-            memoryUsedMB = Util.getMemoryUsedMB();
-            memoryUsedPercent = Util.getMemoryUsedPercent();
-            threadCount = Thread.activeCount();
-            return gson.toJson(this);
-        }
-    }
-
     public void processRequestMillis(int millis) {
         perMinuteStats.processRequestMillis(millis);
     }
@@ -433,6 +403,7 @@ public class Processor extends Thread {
         private int processRequestHighMillis;
         private final AtomicInteger failedRequests = new AtomicInteger();
         private final AtomicInteger failedResponses = new AtomicInteger();
+        private int requestsToMeCurrentBacklog;
 
         private void clear() {
             requestsSent = 0;
@@ -449,7 +420,8 @@ public class Processor extends Thread {
         }
 
         private synchronized String getAndReset() {
-            String ret = gson.toJson(this);
+            requestsToMeCurrentBacklog = getRequestsToMeBacklog();
+            String ret = Util.jsonStringFromObject(this);
             clear();
             return ret;
         }

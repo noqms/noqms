@@ -22,7 +22,6 @@ import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.google.gson.Gson;
 import com.noqms.LogListener;
 
 /**
@@ -38,7 +37,6 @@ public class ServiceUdp extends Thread {
     private final DatagramSocket datagramSocket;
     private final int receivePort;
     private final byte[] receiveData;
-    private final Gson gson = new Gson();
     private final AtomicBoolean die = new AtomicBoolean();
 
     public ServiceUdp(Harness harness) throws Exception {
@@ -49,10 +47,8 @@ public class ServiceUdp extends Thread {
 
         datagramSocket = new DatagramSocket(config.dataPort);
         datagramSocket.setSoTimeout(0);
-        datagramSocket.setReceiveBufferSize(
-                UDP_BUFFER_CAPACITY_MESSAGES * (MessageHeader.MAX_BYTES + config.maxMessageInBytes));
-        datagramSocket.setSendBufferSize(
-                UDP_BUFFER_CAPACITY_MESSAGES * (MessageHeader.MAX_BYTES + config.maxMessageOutBytes));
+        datagramSocket.setReceiveBufferSize(UDP_BUFFER_CAPACITY_MESSAGES * (MessageHeader.MAX_BYTES + config.maxMessageInBytes));
+        datagramSocket.setSendBufferSize(UDP_BUFFER_CAPACITY_MESSAGES * (MessageHeader.MAX_BYTES + config.maxMessageOutBytes));
 
         receivePort = datagramSocket.getLocalPort();
         receiveData = new byte[MessageHeader.MAX_BYTES + config.maxMessageInBytes];
@@ -101,35 +97,29 @@ public class ServiceUdp extends Thread {
                 continue;
             }
             if (packetLength < HEADER_LENGTH_BYTES + headerLength) {
-                logger.error("Received service message has insufficient bytes for header: " + packetLength + " < "
-                        + (HEADER_LENGTH_BYTES + headerLength), null);
+                logger.error("Received service message has insufficient bytes for header: " + packetLength + " < " + (HEADER_LENGTH_BYTES + headerLength), null);
                 continue;
             }
             int serviceDataLength = packetLength - headerLength - HEADER_LENGTH_BYTES;
             if (serviceDataLength > harness.getConfig().maxMessageInBytes) {
-                logger.error("Received service message length exceeds maximum: " + serviceDataLength + " > "
-                        + harness.getConfig().maxMessageInBytes, null);
+                logger.error("Received service message length exceeds maximum: " + serviceDataLength + " > " + harness.getConfig().maxMessageInBytes, null);
                 continue;
             }
 
             // header
             MessageHeader header = null;
             try {
-                header = gson.fromJson(
-                        new String(packetData, HEADER_LENGTH_BYTES, headerLength, StandardCharsets.UTF_8),
-                        MessageHeader.class);
+                header = Util.jsonObjectFromBytes(packetData, HEADER_LENGTH_BYTES, headerLength, MessageHeader.class);
             } catch (Exception ex) {
-                logger.error("Unable to deserialize received service message header", ex);
+                logger.error("Unable to deserialize received service message header: " + new String(packetData, HEADER_LENGTH_BYTES, headerLength, StandardCharsets.UTF_8), ex);
                 continue;
             }
-            if (header.serviceNameFrom == null || header.serviceNameFrom.isBlank() || header.serviceNameTo == null
-                    || header.serviceNameTo.isBlank() || (header.id != null && header.id <= 0)) {
-                logger.error("Bad service message received: " + gson.toJson(header), null);
+            if (header.serviceNameFrom == null || header.serviceNameFrom.isBlank() || header.serviceNameTo == null || header.serviceNameTo.isBlank() || (header.id != null && header.id <= 0)) {
+                logger.error("Bad service message received: " + Util.jsonStringFromObject(header), null);
                 continue;
             }
             if (!header.serviceNameTo.equals(harness.getConfig().serviceName)) {
-                logger.error("Received service message was intended for a different service: " + header.serviceNameTo
-                        + " != " + harness.getConfig().serviceName, null);
+                logger.error("Received service message was intended for a different service: " + header.serviceNameTo + " != " + harness.getConfig().serviceName, null);
                 continue;
             }
 
@@ -148,22 +138,19 @@ public class ServiceUdp extends Thread {
     public boolean send(MessageHeader header, byte[] data, InetAddress addressTo, int portTo) {
         int dataLength = data == null ? 0 : data.length;
         if (dataLength > harness.getConfig().maxMessageOutBytes) {
-            logger.error("Sent message length exceeds maximum: " + dataLength + " > "
-                    + harness.getConfig().maxMessageOutBytes, null);
+            logger.error("Sent message length exceeds maximum: " + dataLength + " > " + harness.getConfig().maxMessageOutBytes, null);
             return false;
         }
 
-        byte[] headerBytes = gson.toJson(header).getBytes(StandardCharsets.UTF_8);
+        byte[] headerBytes = Util.jsonBytesFromObject(header);
         int headerLength = headerBytes.length;
         if (headerLength > MessageHeader.MAX_BYTES) {
-            logger.error("Sent header length exceeds maximum: " + headerLength + " > " + MessageHeader.MAX_BYTES,
-                    null);
+            logger.error("Sent header length exceeds maximum: " + headerLength + " > " + MessageHeader.MAX_BYTES, null);
             return false;
         }
 
         byte[] udpMessage = new byte[HEADER_LENGTH_BYTES + headerLength + dataLength];
-        System.arraycopy(String.format("%0" + HEADER_LENGTH_BYTES + "d", headerLength).getBytes(StandardCharsets.UTF_8),
-                0, udpMessage, 0, HEADER_LENGTH_BYTES);
+        System.arraycopy(String.format("%0" + HEADER_LENGTH_BYTES + "d", headerLength).getBytes(StandardCharsets.UTF_8), 0, udpMessage, 0, HEADER_LENGTH_BYTES);
         System.arraycopy(headerBytes, 0, udpMessage, HEADER_LENGTH_BYTES, headerLength);
         if (data != null)
             System.arraycopy(data, 0, udpMessage, HEADER_LENGTH_BYTES + headerLength, dataLength);

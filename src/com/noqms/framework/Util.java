@@ -19,15 +19,21 @@ package com.noqms.framework;
 import java.net.DatagramSocket;
 import java.net.Inet6Address;
 import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.Properties;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 /**
  * @author Stanley Barzee
  * @since 1.1.0
  */
 public class Util {
-    public static final boolean preferIPv6Addresses = Boolean
-            .valueOf(System.getProperty("java.net.preferIPv6Addresses"));
+    public static final boolean preferIPv6Addresses = Boolean.valueOf(System.getProperty("java.net.preferIPv6Addresses"));
+
+    private static final Gson gson = new Gson();
+    private static final Gson gsonPretty = new GsonBuilder().setPrettyPrinting().create();
 
     static {
         fixTimer();
@@ -77,18 +83,6 @@ public class Util {
         }
     }
 
-    public static void fixTimer() {
-        new Thread() {
-            {
-                setDaemon(true);
-            }
-
-            public void run() {
-                sleepMillis(Integer.MAX_VALUE);
-            }
-        }.start();
-    }
-
     public static long getMemoryUsedMB() {
         long freeMemory = Runtime.getRuntime().freeMemory();
         long totalMemory = Runtime.getRuntime().totalMemory();
@@ -99,5 +93,37 @@ public class Util {
         long freeMemory = Runtime.getRuntime().freeMemory();
         long totalMemory = Runtime.getRuntime().totalMemory();
         return 100 - (int)(100.0F * freeMemory / totalMemory);
+    }
+
+    public static String jsonStringFromObject(Object object) {
+        return gsonPretty.toJson(object);
+    }
+
+    public static byte[] jsonBytesFromObject(Object object) {
+        return gson.toJson(object).getBytes(StandardCharsets.UTF_8);
+    }
+
+    public static <T> T jsonObjectFromBytes(byte[] bytes, Class<T> clazz) {
+        return gson.fromJson(new String(bytes, StandardCharsets.UTF_8), clazz);
+    }
+
+    public static <T> T jsonObjectFromBytes(byte[] bytes, int len, Class<T> clazz) {
+        return gson.fromJson(new String(bytes, 0, len, StandardCharsets.UTF_8), clazz);
+    }
+
+    public static <T> T jsonObjectFromBytes(byte[] bytes, int offset, int len, Class<T> clazz) {
+        return gson.fromJson(new String(bytes, offset, len, StandardCharsets.UTF_8), clazz);
+    }
+
+    private static void fixTimer() {
+        new Thread() {
+            {
+                setDaemon(true);
+            }
+
+            public void run() {
+                sleepMillis(Integer.MAX_VALUE);
+            }
+        }.start();
     }
 }
