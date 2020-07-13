@@ -2,7 +2,7 @@
 
 ![alt text](architecture.svg)
 
-I coined the term NoQMS - No Queue Microservices - to describe microservices with no dependency on
+NoQMS - No Queue Microservices - is a term coined to describe microservices with no dependency on
 a centralized queue.
 
 Microservices without a centralized queue is a perfectly viable architecture given there is 
