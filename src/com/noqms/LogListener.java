@@ -18,7 +18,7 @@ package com.noqms;
 
 /**
  * Implement this interface to externally process messages produced by noqms. Noqms logs a limited number of messages to
- * System.err and System.out. These messages will also be sent to a LogListener if provided on startup.
+ * System.err and System.out. These messages can be sent to a LogListener instead.
  * 
  * @author Stanley Barzee
  * @since 1.0.0

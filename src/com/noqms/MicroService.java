@@ -90,9 +90,9 @@ public class MicroService {
         if (requestId <= 0)
             throw new IllegalArgumentException("Parameter requestId must be positive");
         if (userMessage != null && userMessage.length() > MAX_STRING_LENGTH)
-            throw new IllegalArgumentException("Parameter userMessage length must be no greater than " + MAX_STRING_LENGTH);
+            userMessage = userMessage.substring(0, MAX_STRING_LENGTH);
         if (nerdDetail != null && nerdDetail.length() > MAX_STRING_LENGTH)
-            throw new IllegalArgumentException("Parameter nerdDetail length must be no greater than " + MAX_STRING_LENGTH);
+            nerdDetail = nerdDetail.substring(0, MAX_STRING_LENGTH);
         if (data != null && data.length > MAX_DATA_LENGTH)
             throw new IllegalArgumentException("Parameter data length must be no greater than " + MAX_DATA_LENGTH);
         harness.getProcessor().sendResponse(requestId, code, userMessage, nerdDetail, data);
