@@ -149,4 +149,11 @@ public class MicroService {
     public void destroy() {
         harness.die();
     }
+    
+    /**
+     * @return per minute statistics of this microservice
+     */
+    public String getPerMinuteStats() {
+        return harness.getProcessor().getPerMinuteStats();
+    }
 }

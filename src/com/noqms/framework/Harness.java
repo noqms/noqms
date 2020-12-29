@@ -55,7 +55,7 @@ public class Harness {
         }
 
         logger = new Logger(config.groupName + "." + config.serviceName, externalLogger);
-        logger.info("Starting: " + props);
+        logger.info("Starting");
 
         serviceInfoEmitter = new ServiceInfoEmitter(this);
         InetAddress myInetAddress = null;

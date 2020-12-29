@@ -29,9 +29,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.noqms.LogListener;
 import com.noqms.MicroService;
 import com.noqms.RequestStatus;
@@ -60,6 +59,7 @@ public class Processor extends Thread {
     private final DelayQueue<ExpiringId> expiringRequestsToMe = new DelayQueue<>();
     private final PerMinuteStats perMinuteStats = new PerMinuteStats();
     private final AtomicBoolean die = new AtomicBoolean();
+    private final AtomicReference<String> lastPerMinuteStats = new AtomicReference<>("");    
 
     public Processor(Harness harness) throws Exception {
         this.harness = harness;
@@ -95,6 +95,10 @@ public class Processor extends Thread {
             requestToMeThread.die();
     }
 
+    public String getPerMinuteStats() {
+        return lastPerMinuteStats.get();
+    }
+    
     // Deal with the data and return quickly.
     // Both requests to me and response to me come through here.
     public void acceptMessageToMe(MessageHeader header, byte[] data, InetAddress serviceAddressFrom, int servicePortFrom) {
@@ -292,7 +296,7 @@ public class Processor extends Thread {
             long currentTimeMillis = System.currentTimeMillis();
             if (currentTimeMillis - lastStatsReportTimeMillis >= ONE_MINUTE_MILLIS) {
                 lastStatsReportTimeMillis = currentTimeMillis;
-                logger.info("Stats=" + perMinuteStats.getAndReset());
+                lastPerMinuteStats.set(perMinuteStats.getAndReset());
             }
 
             Util.sleepMillis(1); // very responsive but not burdensome during inactivity
