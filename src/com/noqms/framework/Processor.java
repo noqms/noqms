@@ -296,7 +296,9 @@ public class Processor extends Thread {
             long currentTimeMillis = System.currentTimeMillis();
             if (currentTimeMillis - lastStatsReportTimeMillis >= ONE_MINUTE_MILLIS) {
                 lastStatsReportTimeMillis = currentTimeMillis;
-                lastPerMinuteStats.set(perMinuteStats.getAndReset());
+                String stats = perMinuteStats.getAndReset();
+                lastPerMinuteStats.set(stats);
+                logger.debug("Stats=" + stats);
             }
 
             Util.sleepMillis(1); // very responsive but not burdensome during inactivity
