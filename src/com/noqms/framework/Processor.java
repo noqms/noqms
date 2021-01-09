@@ -301,7 +301,7 @@ public class Processor extends Thread {
                 logger.debug("Stats=" + stats);
             }
 
-            Util.sleepMillis(1); // very responsive but not burdensome during inactivity
+            Util.sleepMillis(10); // very responsive but not burdensome during inactivity
         }
     }
 
