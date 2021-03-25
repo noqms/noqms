@@ -186,6 +186,8 @@ public class Processor extends Thread {
         long lastStatsReportTimeMillis = System.currentTimeMillis();
 
         while (!die.get()) {
+            boolean activity = false;
+            
             int requestsToMeBacklog = getRequestsToMeBacklog();
             if (requestsToMeBacklog > config.threads) {
                 perMinuteStats.backPressureApplied = true;
@@ -205,6 +207,7 @@ public class Processor extends Thread {
                 }
                 if (messageFromMe == null)
                     break;
+                activity = true;
                 MessageHeader header = messageFromMe.header;
                 if (header.responseMeta != null) {
                     // response from me
@@ -240,6 +243,7 @@ public class Processor extends Thread {
                 }
                 if (messageToMe == null)
                     break;
+                activity = true;
                 MessageHeader header = messageToMe.header;
                 if (header.responseMeta != null) {
                     // response to me
@@ -273,6 +277,7 @@ public class Processor extends Thread {
                 ExpiringId expiringId = expiringRequestsFromMe.poll();
                 if (expiringId == null)
                     break;
+                activity = true;
                 RequestFromMeExpectingResponse request = requestsFromMeByRequestId.remove(expiringId.id);
                 if (request != null) {
                     perMinuteStats.responsesDroppedByOthers++;
@@ -286,6 +291,7 @@ public class Processor extends Thread {
                 ExpiringId expiringId = expiringRequestsToMe.poll();
                 if (expiringId == null)
                     break;
+                activity = true;
                 RequestToMeExpectingResponse request = requestsToMeByInternalRequestId.remove(expiringId.id);
                 if (request != null) {
                     perMinuteStats.responsesDroppedByMe++;
@@ -301,7 +307,8 @@ public class Processor extends Thread {
                 logger.debug("Stats=" + stats);
             }
 
-            Util.sleepMillis(10); // very responsive but not burdensome during inactivity
+            if (!activity)
+                Util.sleepMillis(10); // very responsive but not burdensome during inactivity
         }
     }
 
